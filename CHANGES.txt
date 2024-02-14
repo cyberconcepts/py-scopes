@@ -1,0 +1,7 @@
+Changelog
+=========
+
+3.0.1 (unreleased)
+------------------
+
+- Package created from cco.storage (2024-02-14)
