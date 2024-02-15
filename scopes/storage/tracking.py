@@ -22,7 +22,7 @@ class Track(object):
     headFields = ['taskId', 'userName']
     prefix = 'rec'
 
-    def __init__(self, *keys, data=None, timeStamp=None, trackId=None, container=None):
+    def __init__(self, *keys, **kw):
         self.head = {}
         for ix, k in enumerate(keys):
             self.head[self.headFields[ix]] = k
@@ -30,10 +30,10 @@ class Track(object):
             if self.head.get(k) is None:
                 self.heaad[k] = ''
             setattr(self, k, self.head[k])
-        self.data = data or {}
-        self.timeStamp = timeStamp
-        self.trackId = trackId
-        self.container = container
+        self.data = kw.get('data') or {}
+        self.timeStamp = kw.get('timeStamp')
+        self.trackId = kw.get('trackId')
+        self.container = kw.get('container')
 
     def update(self, data, overwrite=False):
         if data is None:

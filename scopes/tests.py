@@ -11,7 +11,7 @@ from scopes.storage.common import Storage, getEngine, sessionFactory
 from scopes.storage import proxy
 from scopes.storage import tracking
 
-engine = getEngine('postgresql+psycopg', 'testdb', 'testuser', 'secret')
+engine = getEngine('postgresql', 'ccotest', 'ccotest', 'cco')
 scopes.storage.common.engine = engine
 scopes.storage.common.Session = sessionFactory(engine)
 
