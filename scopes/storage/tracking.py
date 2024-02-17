@@ -6,6 +6,7 @@ A track consists of a head (index data, metadata)  with a fixed set of fields an
 data (payload) represented as a dict.
 """
 
+import base64
 from datetime import datetime
 from sqlalchemy import Table, Column, Index
 from sqlalchemy import BigInteger, DateTime, Text, func
@@ -28,7 +29,7 @@ class Track(object):
             self.head[self.headFields[ix]] = k
         for k in self.headFields:
             if self.head.get(k) is None:
-                self.heaad[k] = ''
+                self.head[k] = ''
             setattr(self, k, self.head[k])
         self.data = data or {}
         self.timeStamp = timeStamp
@@ -47,7 +48,9 @@ class Track(object):
     def uid(self):
         if self.trackId is None:
             return None
-        return '%s-%d' % (self.prefix, self.trackId)
+        raw = ('%s-%d' % (self.prefix, self.trackId)).encode()
+        return 'b' + base64.urlsafe_b64encode(raw).decode()
+        #return '%s-%d' % (self.prefix, self.trackId)
 
 
 @registerContainerClass
