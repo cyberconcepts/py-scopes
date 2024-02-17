@@ -54,13 +54,16 @@ class Test(unittest.TestCase):
                             data=dict(activity='concept'))
         trid02 = tracks.upsert(tr02)
         self.assertEqual(trid02, 31)
-        self.assertEqual(tr02.uid, 'rec-31')
+        self.assertEqual(tr02.uid, 'bcmVjLTMx')
+        #self.assertEqual(tr02.uid, 'rec-31')
         tr02.trackId = trid01
         trid021 = tracks.upsert(tr02)
         self.assertEqual(trid021, trid01)
-        self.assertEqual(tr02.uid, 'rec-' + str(trid01))
+        self.assertEqual(tr02.uid, 'bcmVjLTE=')
+        #self.assertEqual(tr02.uid, 'rec-' + str(trid01))
 
-        tr03 = storage.getItem('rec-31')
+        #tr03 = storage.getItem(b'bcmVjLTE=')
+        tr03 = storage.getItem('bcmVjLTMx')
         self.assertEqual(tr03.trackId, 31)
 
         n = tracks.remove(31)

@@ -2,6 +2,7 @@
 
 """Common utility stuff for the scopes.storage package."""
 
+import base64
 from sqlalchemy import create_engine, MetaData, text
 from sqlalchemy.orm import scoped_session, sessionmaker
 import threading
@@ -41,6 +42,7 @@ class Storage(object):
         self.containers[container.itemFactory.prefix] = container
 
     def getItem(self, uid):
+        uid = base64.urlsafe_b64decode(uid[1:]).decode()
         prefix, id = uid.split('-')
         id = int(id)
         container = self.containers.get(prefix)
