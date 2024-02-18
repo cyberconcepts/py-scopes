@@ -42,7 +42,6 @@ class Storage(object):
         self.containers[container.itemFactory.prefix] = container
 
     def getItem(self, uid):
-        uid = base64.urlsafe_b64decode(uid[1:]).decode()
         prefix, id = uid.split('-')
         id = int(id)
         container = self.containers.get(prefix)

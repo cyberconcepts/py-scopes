@@ -48,9 +48,7 @@ class Track(object):
     def uid(self):
         if self.trackId is None:
             return None
-        raw = ('%s-%d' % (self.prefix, self.trackId)).encode()
-        return 'b' + base64.urlsafe_b64encode(raw).decode()
-        #return '%s-%d' % (self.prefix, self.trackId)
+        return '%s-%d' % (self.prefix, self.trackId)
 
 
 @registerContainerClass
