@@ -1,4 +1,4 @@
-# py-scopes/demo/server.py
+# py-scopes/demo/demo_server.py
 
 from wsgiref.simple_server import make_server
 
@@ -10,3 +10,9 @@ def run(app, config):
             httpd.serve_forever()
         except KeyboardInterrupt:
             print('Shutting down.')
+
+
+if __name__ == '__main__':
+    import config
+    run(config.app, config)
+
