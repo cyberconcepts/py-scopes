@@ -9,7 +9,7 @@ import unittest
 import scopes.storage.common
 from scopes.storage.common import Storage, getEngine, sessionFactory
 from scopes.storage import proxy
-from scopes.storage import tracking
+from scopes.storage import folder, tracking
 
 import config
 engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassword)
@@ -70,6 +70,9 @@ class Test(unittest.TestCase):
 
         transaction.commit()
 
+    def testFolder(self):
+        storage.dropTable('folders')
+        folders = storage.create(folder.Folders)
 
 def suite():
     return unittest.TestSuite((

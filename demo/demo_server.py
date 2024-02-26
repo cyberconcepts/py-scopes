@@ -15,4 +15,5 @@ def run(app, config):
 if __name__ == '__main__':
     import config
     run(config.app, config)
-
+    #run(config.app_factory(), config)
+    # see zope.app.wsgi.getWSGIApplication
