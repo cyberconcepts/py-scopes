@@ -11,7 +11,8 @@ from scopes.storage.common import Storage, getEngine, sessionFactory
 from scopes.storage import proxy
 from scopes.storage import tracking
 
-engine = getEngine('postgresql+psycopg', 'testdb', 'testuser', 'secret')
+import config
+engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassword)
 scopes.storage.common.engine = engine
 scopes.storage.common.Session = sessionFactory(engine)
 
@@ -21,7 +22,7 @@ storage = Storage(schema='testing')
 class Test(unittest.TestCase):
     "Basic tests for the cco.storage package."
 
-    def testBasicStuff(self):
+    def testTracking(self):
         storage.dropTable('tracks')
         tracks = storage.create(tracking.Container)
 
