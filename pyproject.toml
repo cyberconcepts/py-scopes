@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-demo = ["python-dotenv", "zope.publisher"]
+app = ["python-dotenv", "zope.publisher", "zope.traversing"]
 test = ["pytest"]
 
 [tool.setuptools]

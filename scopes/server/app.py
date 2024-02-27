@@ -3,6 +3,7 @@
 from zope.publisher.base import DefaultPublication
 from zope.publisher.browser import BrowserRequest
 from zope.publisher.publish import publish
+from zope.traversing.publicationtraverse import PublicationTraverser
 
 
 def demo_app(environ, start_response):

@@ -72,7 +72,18 @@ class Test(unittest.TestCase):
 
     def testFolder(self):
         storage.dropTable('folders')
-        folders = storage.create(folder.Folders)
+        cont = storage.create(folder.Folders)
+        self.assertEqual(list(cont.query(parent='')), [])
+        cont.save(folder.Folder('', 'root'))
+        folders = list(cont.query(parent=''))
+        self.assertEqual(len(folders), 1)
+        root = folders[0]
+        root['child1'] = folder.Folder(data=dict(title='First Child'))
+        folders = list(cont.query(parent=root.uid))
+        self.assertEqual(len(folders), 1)
+        ch1 = root['child1']
+        self.assertEqual(ch1.parent, root.uid)
+        assert list(root.keys()) == ['child1']
 
 def suite():
     return unittest.TestSuite((
