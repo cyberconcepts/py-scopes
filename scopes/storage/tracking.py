@@ -36,6 +36,15 @@ class Track(object):
         self.trackId = trackId
         self.container = container
 
+    def set(self, attr, value):
+        if attr in self.headFields:
+            if value is None:
+                value = ''
+            self.head[attr] = value
+            setattr(self, attr, value)
+        else:
+            raise AttributeError(attr)
+
     def update(self, data, overwrite=False):
         if data is None:
             return

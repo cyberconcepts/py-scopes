@@ -22,13 +22,24 @@ class Folder(Track):
     def __getitem__(self, key):
         value = self.container.queryLast(parent=self.uid, name=key)
         if value is None:
-            raise KeyError
+            raise KeyError(key)
         return value
 
     def __setitem__(self, key, value):
-        value.head['parent'] = self.uid
-        value.head['name']= key
+        value.set('parent', self.uid)
+        value.set('name', key)
         self.container.save(value)
+
+
+class Root(Folder):
+    """A dummy (virtual) root folder for creating real folders
+       using the Folder API."""
+
+    def __init__(self, storage):
+        cont = storage.create(Folders)
+        super(Root, self).__init__(container=cont)
+
+    uid = ''
 
 
 @registerContainerClass
