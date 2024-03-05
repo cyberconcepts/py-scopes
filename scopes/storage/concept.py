@@ -8,5 +8,5 @@ from scopes.storage.tracking import Container, Track
 
 class Concept(Track):
 
-    headFields = ['parent', 'name']
+    headFields = ['name']
  

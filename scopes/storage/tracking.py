@@ -59,6 +59,12 @@ class Track(object):
             return None
         return '%s-%d' % (self.prefix, self.trackId)
 
+    @property
+    def rid(self):
+        if self.trackId is None:
+            return ''
+        return str(self.trackId)
+
 
 @registerContainerClass
 class Container(object):
