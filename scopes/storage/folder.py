@@ -10,23 +10,23 @@ class Folder(Track):
     prefix = 'fldr'
 
     def keys(self):
-        for f in self.container.query(parent=self.uid):
+        for f in self.container.query(parent=self.name):
             yield f.name
 
     def get(self, key, default=None):
-        value = self.container.queryLast(parent=self.uid, name=key)
+        value = self.container.queryLast(parent=self.name, name=key)
         if value is None:
             return default
         return value
 
     def __getitem__(self, key):
-        value = self.container.queryLast(parent=self.uid, name=key)
+        value = self.container.queryLast(parent=self.name, name=key)
         if value is None:
             raise KeyError(key)
         return value
 
     def __setitem__(self, key, value):
-        value.set('parent', self.uid)
+        value.set('parent', self.name)
         value.set('name', key)
         self.container.save(value)
 

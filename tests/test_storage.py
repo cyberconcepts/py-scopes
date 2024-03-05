@@ -80,7 +80,7 @@ class Test(unittest.TestCase):
         top['child1'] = folder.Folder(data=dict(title='First Child'))
         self.assertEqual(list(top.keys()), ['child1'])
         ch1 = top['child1']
-        self.assertEqual(ch1.parent, top.uid)
+        self.assertEqual(ch1.parent, top.name)
         assert list(top.keys()) == ['child1']
 
 def suite():
