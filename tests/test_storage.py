@@ -2,27 +2,30 @@
 
 """Tests for the 'scopes.storage' package."""
 
+import config
+
 from datetime import datetime
 import transaction
 import unittest
 
 import scopes.storage.common
-from scopes.storage.common import Storage, getEngine, sessionFactory
+from scopes.storage.common import commit, Storage, getEngine, sessionFactory
 from scopes.storage import proxy
 from scopes.storage import folder, tracking
 
-import config
-engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassword)
+engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassword) 
 scopes.storage.common.engine = engine
 scopes.storage.common.Session = sessionFactory(engine)
 
-storage = Storage(schema='testing')
+#storage = Storage(schema='testing')
+#storage = Storage(schema=config.dbschema)
+storage = Storage()
 
 
 class Test(unittest.TestCase):
     "Basic tests for the cco.storage package."
 
-    def testTracking(self):
+    def test_001_tracking(self):
         storage.dropTable('tracks')
         tracks = storage.create(tracking.Container)
 
@@ -68,9 +71,9 @@ class Test(unittest.TestCase):
         self.assertEqual(n, 1)
         self.assertEqual(tracks.get(31), None)
 
-        transaction.commit()
+        commit(storage.session)
 
-    def testFolder(self):
+    def test_002_folder(self):
         storage.dropTable('folders')
         root = folder.Root(storage)
         self.assertEqual(list(root.keys()), [])
@@ -82,6 +85,9 @@ class Test(unittest.TestCase):
         ch1 = top['child1']
         self.assertEqual(ch1.parent, top.rid)
         assert list(top.keys()) == ['child1']
+
+        #transaction.commit()
+        storage.session.commit()
 
 def suite():
     return unittest.TestSuite((

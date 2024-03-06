@@ -4,19 +4,28 @@
 
 import base64
 from sqlalchemy import create_engine, MetaData, text
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy import Integer
+from sqlalchemy.dialects.sqlite import JSON
 import threading
-import zope.sqlalchemy
 
 
-def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
-    return create_engine('%s://%s:%s@%s:%s/%s' % (
-        dbtype, user, pw, host, port, dbname), **kw)
+# predefined db-specific definitions, usable for SQLite;
+# may be overriden by import of ``scopes.storage.db.<dbname>``
 
 def sessionFactory(engine):
-    Session = scoped_session(sessionmaker(bind=engine, twophase=True))
-    zope.sqlalchemy.register(Session)
-    return Session
+    return engine.connect
+
+def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
+    return create_engine('%s:///%s' % (dbtype, dbname), **kw)
+
+def mark_changed(session):
+    pass
+
+def commit(conn):
+    conn.commit()
+
+IdType = Integer
+JsonType = JSON
 
 # put something like this in code before first creating a Storage object
 #engine = getEngine('postgresql+psycopg', 'testdb', 'testuser', 'secret')
@@ -57,7 +66,8 @@ class Storage(object):
 
     def dropTable(self, tableName):
         with self.engine.begin() as conn:
-            conn.execute(text('drop table if exists %s.%s' % (self.schema, tableName)))
+            prefix = self.schema and self.schema + '.' or ''
+            conn.execute(text('drop table if exists %s%s' % (prefix, tableName)))
 
     def resetSequence(self, tableName, colName, v):
         sq = ('alter sequence %s.%s_%s_seq restart %i' % 

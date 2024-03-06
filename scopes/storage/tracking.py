@@ -9,12 +9,10 @@ data (payload) represented as a dict.
 import base64
 from datetime import datetime
 from sqlalchemy import Table, Column, Index
-from sqlalchemy import BigInteger, DateTime, Text, func
+from sqlalchemy import DateTime, Text, func
 from sqlalchemy import and_
-from sqlalchemy.dialects.postgresql import JSONB
-import transaction
-from zope.sqlalchemy import register, mark_changed
 
+from scopes.storage.common import commit, IdType, JsonType, mark_changed
 from scopes.storage.common import registerContainerClass
 
 
@@ -177,7 +175,7 @@ class Container(object):
 
 def createTable(storage, tableName, headcols, indexes=None):
     metadata = storage.metadata
-    cols = [Column('trackid', BigInteger, primary_key=True)]
+    cols = [Column('trackid', IdType, primary_key=True)]
     idxs = []
     for ix, f in enumerate(headcols):
         cols.append(Column(f.lower(), Text, nullable=False, server_default=''))
@@ -187,7 +185,7 @@ def createTable(storage, tableName, headcols, indexes=None):
         indexName = 'idx_%s_%d' % (tableName, (ix + 1))
         idxs.append(Index(indexName, *idef))
     idxs.append(Index('idx_%s_ts' % tableName, 'timestamp'))
-    cols.append(Column('data', JSONB, nullable=False, server_default='{}'))
+    cols.append(Column('data', JsonType, nullable=False, server_default='{}'))
     table = Table(tableName, metadata, *(cols+idxs), extend_existing=True)
     metadata.create_all(storage.engine)
     return table
