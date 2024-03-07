@@ -22,6 +22,7 @@ def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
 def commit(conn):
     transaction.commit()
 
+# patch `common` module
 import scopes.storage.common
 scopes.storage.common.IdType = BigInteger
 scopes.storage.common.JsonType = JSONB

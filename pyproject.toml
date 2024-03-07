@@ -12,13 +12,13 @@ keywords = ["scopes"]
 authors = [{name = "Helmut Merz", email = "helmutm@cy55.de"}]
 
 dependencies = [
+	"SQLAlchemy",
 ]
 
 [project.optional-dependencies]
 postgres = [
-	"transaction",
 	"psycopg[binary]",
-	"SQLAlchemy",
+	"transaction",
 	"zope.sqlalchemy",
 ]
 app = ["python-dotenv", "zope.publisher", "zope.traversing"]
