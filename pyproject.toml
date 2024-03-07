@@ -5,20 +5,22 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "py-scopes"
 version = "3.0.1"
-description = "Implementation of the strange 'scopes' paradigma in Python"
+description = "Implementation of the unknown 'scopes' paradigm in Python"
 readme = "README.md"
 license = {text = "MIT"}
 keywords = ["scopes"]
 authors = [{name = "Helmut Merz", email = "helmutm@cy55.de"}]
 
 dependencies = [
+]
+
+[project.optional-dependencies]
+postgres = [
 	"transaction",
 	"psycopg[binary]",
 	"SQLAlchemy",
 	"zope.sqlalchemy",
 ]
-
-[project.optional-dependencies]
 app = ["python-dotenv", "zope.publisher", "zope.traversing"]
 test = ["pytest"]
 

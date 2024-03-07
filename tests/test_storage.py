@@ -17,9 +17,7 @@ engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassw
 scopes.storage.common.engine = engine
 scopes.storage.common.Session = sessionFactory(engine)
 
-#storage = Storage(schema='testing')
-#storage = Storage(schema=config.dbschema)
-storage = Storage()
+storage = Storage(schema=config.dbschema)
 
 
 class Test(unittest.TestCase):
@@ -86,8 +84,7 @@ class Test(unittest.TestCase):
         self.assertEqual(ch1.parent, top.rid)
         assert list(top.keys()) == ['child1']
 
-        #transaction.commit()
-        storage.session.commit()
+        commit(storage.session)
 
 def suite():
     return unittest.TestSuite((

@@ -9,6 +9,7 @@ app = zope_app
 # storage settings
 
 # PostgreSQL
+import scopes.storage.db.postgres
 dbengine = 'postgresql+psycopg'
 dbname = 'testdb'
 dbuser = 'testuser'
@@ -16,7 +17,7 @@ dbpassword = 'secret'
 dbschema = 'testing'
 
 # SQLite
-dbengine = 'sqlite'
-dbname = 'var/test.db'
-dbschema = None
+#dbengine = 'sqlite'
+#dbname = 'var/test.db'
+#dbschema = None
 

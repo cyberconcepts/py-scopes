@@ -3,7 +3,7 @@
 """Database-related code specific for PostgreSQL."""
 
 from sqlalchemy import create_engine
-from sqlalchemy import BigInteger, JSONB
+from sqlalchemy import BigInteger
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import scoped_session, sessionmaker
 import transaction
@@ -21,3 +21,12 @@ def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
 
 def commit(conn):
     transaction.commit()
+
+import scopes.storage.common
+scopes.storage.common.IdType = BigInteger
+scopes.storage.common.JsonType = JSONB
+scopes.storage.common.sessionFactory = sessionFactory
+scopes.storage.common.getEngine = getEngine
+scopes.storage.common.mark_changed = mark_changed
+scopes.storage.common.commit = commit
+
