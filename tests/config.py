@@ -1,15 +1,15 @@
 # py-scopes/tests/config.py
 
-from scopes.server.app import demo_app, zope_app
+#from scopes.server.app import demo_app, zope_app
 
 # server / app settings
 server_port = '8999'
-app = zope_app
+#app = zope_app
 
 # storage settings
 
 # PostgreSQL
-import scopes.storage.db.postgres
+#import scopes.storage.db.postgres
 dbengine = 'postgresql+psycopg'
 dbname = 'testdb'
 dbuser = 'testuser'
@@ -17,7 +17,7 @@ dbpassword = 'secret'
 dbschema = 'testing'
 
 # SQLite
-#dbengine = 'sqlite'
-#dbname = 'var/test.db'
-#dbschema = None
+dbengine = 'sqlite'
+dbname = 'var/test.db'
+dbschema = None
 

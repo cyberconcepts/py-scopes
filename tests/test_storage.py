@@ -9,7 +9,7 @@ import unittest
 
 import scopes.storage.common
 from scopes.storage.common import commit, Storage, getEngine, sessionFactory
-from scopes.storage import proxy
+#from scopes.storage import proxy
 from scopes.storage import folder, tracking
 
 engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassword) 
