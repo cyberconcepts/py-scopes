@@ -8,16 +8,10 @@ server_port = '8999'
 
 # storage settings
 
-# PostgreSQL
-#import scopes.storage.db.postgres
-dbengine = 'postgresql+psycopg'
-dbname = 'testdb'
-dbuser = 'testuser'
-dbpassword = 'secret'
-dbschema = 'testing'
-
 # SQLite
 dbengine = 'sqlite'
 dbname = 'var/test.db'
+dbuser = None
+dbpassword = None
 dbschema = None
 

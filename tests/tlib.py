@@ -1,12 +1,20 @@
 """The real test implementations"""
 
-
+import config
 from datetime import datetime
 from scopes.storage import folder, tracking
-from scopes.storage.common import commit
+
+import scopes.storage.common
+from scopes.storage.common import commit, Storage, getEngine, sessionFactory
+
+engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassword) 
+scopes.storage.common.engine = engine
+scopes.storage.common.Session = sessionFactory(engine)
+
+storage = Storage(schema=config.dbschema)
 
 
-def test_tracking(self, storage):
+def test_tracking(self):
         storage.dropTable('tracks')
         tracks = storage.create(tracking.Container)
 
@@ -55,7 +63,7 @@ def test_tracking(self, storage):
         commit(storage.session)
 
 
-def test_folder(self, storage):
+def test_folder(self):
         storage.dropTable('folders')
         root = folder.Root(storage)
         self.assertEqual(list(root.keys()), [])
