@@ -2,11 +2,8 @@
 
 """Tests for the 'scopes.storage' package - using PostgreSQL."""
 
-from datetime import datetime
 import unittest
 
-# PostgreSQL-specific settings
-import scopes.storage.db.postgres
 import config
 config.dbengine = 'postgresql+psycopg'
 config.dbname = 'testdb'
@@ -14,7 +11,14 @@ config.dbuser = 'testuser'
 config.dbpassword = 'secret'
 config.dbschema = 'testing'
 
+# PostgreSQL-specific settings
+from scopes.storage.db import postgres 
+postgres.init()
+
 import tlib
+tlib.init(config)
+#factory = postgres.StorageFactory(config)
+#storage = factory(schema='testing')
 
 class Test(unittest.TestCase):
 

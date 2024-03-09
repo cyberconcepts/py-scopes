@@ -24,10 +24,11 @@ def commit(conn):
 
 # patch `common` module
 import scopes.storage.common
-scopes.storage.common.IdType = BigInteger
-scopes.storage.common.JsonType = JSONB
-scopes.storage.common.sessionFactory = sessionFactory
-scopes.storage.common.getEngine = getEngine
-scopes.storage.common.mark_changed = mark_changed
-scopes.storage.common.commit = commit
+def init():
+    scopes.storage.common.IdType = BigInteger
+    scopes.storage.common.JsonType = JSONB
+    scopes.storage.common.sessionFactory = sessionFactory
+    scopes.storage.common.getEngine = getEngine
+    scopes.storage.common.mark_changed = mark_changed
+    scopes.storage.common.commit = commit
 

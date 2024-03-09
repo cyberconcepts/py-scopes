@@ -27,10 +27,33 @@ def commit(conn):
 IdType = Integer
 JsonType = JSON
 
-# put something like this in code before first creating a Storage object
-#engine = getEngine('postgresql+psycopg', 'testdb', 'testuser', 'secret')
-#scopes.storage.common.engine = engine
-#scopes.storage.common.Session = sessionFactory(engine)
+
+class StorageFactory(object):
+
+    engine = Session = None
+
+    sessionFactory = sessionFactory
+    getEngine = getEngine
+    mark_changed = mark_changed
+    commit = commit
+    IdType = IdType
+    JsonType = JsonType
+
+    def __call__(self, schema=None):
+        st = Storage(schema=schema)
+        st.setup(self)
+        return st
+
+    def setup(self, config):
+        self.engine = self.getEngine(config.dbengine, config.dbname, 
+                                     config.dbuser, config.dbpassword) 
+        self.Session = self.sessionFactory
+
+
+# you may put something like this in your code:
+#scopes.storage.common.factory = StorageFactory(config)
+# and then call at appropriate places:
+#storage = scopes.storage.common.factory(schema=...)
 
 
 class Storage(object):

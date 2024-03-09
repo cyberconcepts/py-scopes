@@ -1,17 +1,17 @@
 """The real test implementations"""
 
-import config
 from datetime import datetime
 from scopes.storage import folder, tracking
 
 import scopes.storage.common
 from scopes.storage.common import commit, Storage, getEngine, sessionFactory
 
-engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassword) 
-scopes.storage.common.engine = engine
-scopes.storage.common.Session = sessionFactory(engine)
-
-storage = Storage(schema=config.dbschema)
+def init(config):
+    global storage
+    engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassword) 
+    scopes.storage.common.engine = engine
+    scopes.storage.common.Session = sessionFactory(engine)
+    storage = Storage(schema=config.dbschema)
 
 
 def test_tracking(self):

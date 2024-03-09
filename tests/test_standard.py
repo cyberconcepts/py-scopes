@@ -2,10 +2,14 @@
 
 """Tests for the 'scopes.storage' package."""
 
-from datetime import datetime
 import unittest
 
+import config
 import tlib
+tlib.init(config)
+#from scopes.storage.common import StorageFactory
+#factory = StorageFactory(config)
+#storage = factory(schema=None)
 
 class Test(unittest.TestCase):
 
