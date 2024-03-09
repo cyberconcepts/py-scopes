@@ -12,7 +12,6 @@ from sqlalchemy import Table, Column, Index
 from sqlalchemy import DateTime, Text, func
 from sqlalchemy import and_
 
-from scopes.storage.common import commit, IdType, JsonType, mark_changed
 from scopes.storage.common import registerContainerClass
 
 
@@ -77,6 +76,7 @@ class Container(object):
 
     def __init__(self, storage):
         self.storage = storage
+        self.db = storage.db
         self.session = storage.session
         self.table = self.getTable()
 
@@ -113,7 +113,7 @@ class Container(object):
         values = self.setupValues(track, withTrackId)
         stmt = t.insert().values(**values).returning(t.c.trackid)
         trackId = self.session.execute(stmt).first()[0]
-        mark_changed(self.session)
+        self.db.mark_changed(self.session)
         return trackId
 
     def update(self, track):
@@ -124,7 +124,7 @@ class Container(object):
         stmt = t.update().values(**values).where(t.c.trackid == track.trackId)
         n = self.session.execute(stmt).rowcount
         if n > 0:
-            mark_changed(self.session)
+            self.db.mark_changed(self.session)
         return n
 
     def upsert(self, track):
@@ -142,7 +142,7 @@ class Container(object):
         stmt = self.table.delete().where(self.table.c.trackid == trackId)
         n = self.session.execute(stmt).rowcount
         if n > 0:
-            mark_changed(self.session)
+            self.db.mark_changed(self.session)
         return n
 
     def makeTrack(self, r):
@@ -175,7 +175,7 @@ class Container(object):
 
 def createTable(storage, tableName, headcols, indexes=None):
     metadata = storage.metadata
-    cols = [Column('trackid', IdType, primary_key=True)]
+    cols = [Column('trackid', storage.db.IdType, primary_key=True)]
     idxs = []
     for ix, f in enumerate(headcols):
         cols.append(Column(f.lower(), Text, nullable=False, server_default=''))
@@ -185,7 +185,7 @@ def createTable(storage, tableName, headcols, indexes=None):
         indexName = 'idx_%s_%d' % (tableName, (ix + 1))
         idxs.append(Index(indexName, *idef))
     idxs.append(Index('idx_%s_ts' % tableName, 'timestamp'))
-    cols.append(Column('data', JsonType, nullable=False, server_default='{}'))
+    cols.append(Column('data', storage.db.JsonType, nullable=False, server_default='{}'))
     table = Table(tableName, metadata, *(cols+idxs), extend_existing=True)
     metadata.create_all(storage.engine)
     return table

@@ -3,18 +3,8 @@
 from datetime import datetime
 from scopes.storage import folder, tracking
 
-import scopes.storage.common
-from scopes.storage.common import commit, Storage, getEngine, sessionFactory
 
-def init(config):
-    global storage
-    engine = getEngine(config.dbengine, config.dbname, config.dbuser, config.dbpassword) 
-    scopes.storage.common.engine = engine
-    scopes.storage.common.Session = sessionFactory(engine)
-    storage = Storage(schema=config.dbschema)
-
-
-def test_tracking(self):
+def test_tracking(self, storage):
         storage.dropTable('tracks')
         tracks = storage.create(tracking.Container)
 
@@ -60,10 +50,10 @@ def test_tracking(self):
         self.assertEqual(n, 1)
         self.assertEqual(tracks.get(31), None)
 
-        commit(storage.session)
+        storage.db.commit(storage.session)
 
 
-def test_folder(self):
+def test_folder(self, storage):
         storage.dropTable('folders')
         root = folder.Root(storage)
         self.assertEqual(list(root.keys()), [])
@@ -76,5 +66,5 @@ def test_folder(self):
         self.assertEqual(ch1.parent, top.rid)
         self.assertEqual(list(top.keys()), ['child1'])
 
-        commit(storage.session)
+        storage.db.commit(storage.session)
 

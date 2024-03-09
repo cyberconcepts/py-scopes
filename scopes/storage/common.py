@@ -9,58 +9,46 @@ from sqlalchemy.dialects.sqlite import JSON
 import threading
 
 
-# predefined db-specific definitions, usable for SQLite;
-# may be overriden by import of ``scopes.storage.db.<dbname>``
-
-def sessionFactory(engine):
-    return engine.connect
-
-def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
-    return create_engine('%s:///%s' % (dbtype, dbname), **kw)
-
-def mark_changed(session):
-    pass
-
-def commit(conn):
-    conn.commit()
-
-IdType = Integer
-JsonType = JSON
-
-
 class StorageFactory(object):
 
-    engine = Session = None
+    def sessionFactory(self):
+         return self.engine.connect
 
-    sessionFactory = sessionFactory
-    getEngine = getEngine
-    mark_changed = mark_changed
-    commit = commit
-    IdType = IdType
-    JsonType = JsonType
+    @staticmethod
+    def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
+        return create_engine('%s:///%s' % (dbtype, dbname), **kw)
 
-    def __call__(self, schema=None):
-        st = Storage(schema=schema)
-        st.setup(self)
-        return st
+    @staticmethod
+    def mark_changed(session):
+        pass
 
-    def setup(self, config):
+    @staticmethod
+    def commit(conn):
+        conn.commit()
+
+    IdType = Integer
+    JsonType = JSON
+
+    def __init__(self, config):
         self.engine = self.getEngine(config.dbengine, config.dbname, 
                                      config.dbuser, config.dbpassword) 
-        self.Session = self.sessionFactory
+        self.Session = self.sessionFactory()
+
+    def __call__(self, schema=None):
+        return Storage(self, schema=schema)
 
 
 # you may put something like this in your code:
-#scopes.storage.common.factory = StorageFactory(config)
+#factory = StorageFactory(config)
 # and then call at appropriate places:
 #storage = scopes.storage.common.factory(schema=...)
 
-
 class Storage(object):
 
-    def __init__(self, schema=None):
-        self.engine = engine
-        self.session = Session()
+    def __init__(self, db, schema=None):
+        self.db = db
+        self.engine = db.engine
+        self.session = db.Session()
         self.schema = schema
         self.metadata = MetaData(schema=schema)
         self.containers = {}

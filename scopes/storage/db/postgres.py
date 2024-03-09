@@ -9,26 +9,29 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 import transaction
 from zope.sqlalchemy import register, mark_changed
 
+from scopes.storage.common import StorageFactory
 
-def sessionFactory(engine):
-    Session = scoped_session(sessionmaker(bind=engine, twophase=True))
-    register(Session)
-    return Session
 
-def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
-    return create_engine('%s://%s:%s@%s:%s/%s' % (
-        dbtype, user, pw, host, port, dbname), **kw)
+class StorageFactory(StorageFactory):
 
-def commit(conn):
-    transaction.commit()
+    def sessionFactory(self):
+        Session = scoped_session(sessionmaker(bind=self.engine, twophase=True))
+        register(Session)
+        return Session
 
-# patch `common` module
-import scopes.storage.common
-def init():
-    scopes.storage.common.IdType = BigInteger
-    scopes.storage.common.JsonType = JSONB
-    scopes.storage.common.sessionFactory = sessionFactory
-    scopes.storage.common.getEngine = getEngine
-    scopes.storage.common.mark_changed = mark_changed
-    scopes.storage.common.commit = commit
+    @staticmethod
+    def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
+        return create_engine('%s://%s:%s@%s:%s/%s' % (
+            dbtype, user, pw, host, port, dbname), **kw)
+
+    @staticmethod
+    def mark_changed(session):
+        return mark_changed(session)
+
+    @staticmethod
+    def commit(conn):
+        transaction.commit()
+
+    IdType = BigInteger
+    JsonType = JSONB
 

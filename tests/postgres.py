@@ -12,21 +12,19 @@ config.dbpassword = 'secret'
 config.dbschema = 'testing'
 
 # PostgreSQL-specific settings
-from scopes.storage.db import postgres 
-postgres.init()
+from scopes.storage.db.postgres import StorageFactory 
+factory = StorageFactory(config)
+storage = factory(schema='testing')
 
 import tlib
-tlib.init(config)
-#factory = postgres.StorageFactory(config)
-#storage = factory(schema='testing')
 
 class Test(unittest.TestCase):
 
     def test_001_tracking(self):
-        tlib.test_tracking(self)
+        tlib.test_tracking(self, storage)
 
     def test_002_folder(self):
-        tlib.test_folder(self)
+        tlib.test_folder(self, storage)
 
 def suite():
     return unittest.TestSuite((
