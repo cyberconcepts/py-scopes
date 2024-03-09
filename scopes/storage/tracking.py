@@ -113,7 +113,7 @@ class Container(object):
         values = self.setupValues(track, withTrackId)
         stmt = t.insert().values(**values).returning(t.c.trackid)
         trackId = self.session.execute(stmt).first()[0]
-        self.db.mark_changed(self.session)
+        self.storage.mark_changed()
         return trackId
 
     def update(self, track):
@@ -124,7 +124,7 @@ class Container(object):
         stmt = t.update().values(**values).where(t.c.trackid == track.trackId)
         n = self.session.execute(stmt).rowcount
         if n > 0:
-            self.db.mark_changed(self.session)
+            self.storage.mark_changed()
         return n
 
     def upsert(self, track):
@@ -142,7 +142,7 @@ class Container(object):
         stmt = self.table.delete().where(self.table.c.trackid == trackId)
         n = self.session.execute(stmt).rowcount
         if n > 0:
-            self.db.mark_changed(self.session)
+            self.storage.mark_changed()
         return n
 
     def makeTrack(self, r):

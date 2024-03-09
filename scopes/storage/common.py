@@ -53,6 +53,12 @@ class Storage(object):
         self.metadata = MetaData(schema=schema)
         self.containers = {}
 
+    def commit(self):
+        self.db.commit(self.session)
+
+    def mark_changed(self):
+        self.db.mark_changed(self.session)
+
     def create(self, cls):
         container = cls(self)
         self.add(container)

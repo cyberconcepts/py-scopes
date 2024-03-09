@@ -50,7 +50,7 @@ def test_tracking(self, storage):
         self.assertEqual(n, 1)
         self.assertEqual(tracks.get(31), None)
 
-        storage.db.commit(storage.session)
+        storage.commit()
 
 
 def test_folder(self, storage):
@@ -66,5 +66,5 @@ def test_folder(self, storage):
         self.assertEqual(ch1.parent, top.rid)
         self.assertEqual(list(top.keys()), ['child1'])
 
-        storage.db.commit(storage.session)
+        storage.commit()
 

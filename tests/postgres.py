@@ -9,7 +9,6 @@ config.dbengine = 'postgresql+psycopg'
 config.dbname = 'testdb'
 config.dbuser = 'testuser'
 config.dbpassword = 'secret'
-config.dbschema = 'testing'
 
 # PostgreSQL-specific settings
 from scopes.storage.db.postgres import StorageFactory 
