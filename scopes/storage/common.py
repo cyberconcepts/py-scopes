@@ -9,40 +9,6 @@ from sqlalchemy.dialects.sqlite import JSON
 import threading
 
 
-class StorageFactory(object):
-
-    def sessionFactory(self):
-         return self.engine.connect
-
-    @staticmethod
-    def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
-        return create_engine('%s:///%s' % (dbtype, dbname), **kw)
-
-    @staticmethod
-    def mark_changed(session):
-        pass
-
-    @staticmethod
-    def commit(conn):
-        conn.commit()
-
-    IdType = Integer
-    JsonType = JSON
-
-    def __init__(self, config):
-        self.engine = self.getEngine(config.dbengine, config.dbname, 
-                                     config.dbuser, config.dbpassword) 
-        self.Session = self.sessionFactory()
-
-    def __call__(self, schema=None):
-        return Storage(self, schema=schema)
-
-
-# you may put something like this in your code:
-#factory = StorageFactory(config)
-# and then call at appropriate places:
-#storage = scopes.storage.common.factory(schema=...)
-
 class Storage(object):
 
     def __init__(self, db, schema=None):
@@ -91,6 +57,36 @@ class Storage(object):
                 (self.schema, tableName, colName, v))
         with self.engine.begin() as conn:
             conn.execute(text(sq))
+
+
+class StorageFactory(object):
+
+    def sessionFactory(self):
+         return self.engine.connect
+
+    @staticmethod
+    def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
+        return create_engine('%s:///%s' % (dbtype, dbname), **kw)
+
+    @staticmethod
+    def mark_changed(session):
+        pass
+
+    @staticmethod
+    def commit(conn):
+        conn.commit()
+
+    IdType = Integer
+    JsonType = JSON
+
+    def __init__(self, config, storageClass=Storage):
+        self.engine = self.getEngine(config.dbengine, config.dbname, 
+                                     config.dbuser, config.dbpassword) 
+        self.Session = self.sessionFactory()
+        self.storageClass = storageClass
+
+    def __call__(self, schema=None):
+        return self.storageClass(self, schema=schema)
 
 
 # store information about container implementations, identified by a uid prefix.
