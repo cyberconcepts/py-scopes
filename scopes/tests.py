@@ -1,27 +1,28 @@
-#! /usr/bin/python
-
-"""Tests for the 'scopes.storage' package."""
+"""The real test implementations"""
 
 from datetime import datetime
-import transaction
 import unittest
 
-import scopes.storage.common
-from scopes.storage.common import Storage, getEngine, sessionFactory
-from scopes.storage import proxy
-from scopes.storage import tracking
+from scopes.storage import folder, tracking
 
-engine = getEngine('postgresql', 'ccotest', 'ccotest', 'cco')
-scopes.storage.common.engine = engine
-scopes.storage.common.Session = sessionFactory(engine)
+#import config
+class Config(object): pass
 
-storage = Storage(schema='testing')
+config = Config()
+config.dbengine = 'postgresql'
+config.dbname = 'ccotest'
+config.dbuser = 'ccotest'
+config.dbpassword = 'cco'
+
+# PostgreSQL-specific settings
+from scopes.storage.db.postgres import StorageFactory 
+factory = StorageFactory(config)
+storage = factory(schema='testing')
 
 
 class Test(unittest.TestCase):
-    "Basic tests for the cco.storage package."
 
-    def testBasicStuff(self):
+    def test_001_tracking(self):
         storage.dropTable('tracks')
         tracks = storage.create(tracking.Container)
 
@@ -67,7 +68,22 @@ class Test(unittest.TestCase):
         self.assertEqual(n, 1)
         self.assertEqual(tracks.get(31), None)
 
-        transaction.commit()
+        storage.commit()
+
+    def test_002_folder(self):
+        storage.dropTable('folders')
+        root = folder.Root(storage)
+        self.assertEqual(list(root.keys()), [])
+        root['top'] = folder.Folder()
+        self.assertEqual(list(root.keys()), ['top'])
+        top = root['top']
+        top['child1'] = folder.Folder(data=dict(title='First Child'))
+        self.assertEqual(list(top.keys()), ['child1'])
+        ch1 = top['child1']
+        self.assertEqual(ch1.parent, top.rid)
+        self.assertEqual(list(top.keys()), ['child1'])
+
+        storage.commit()
 
 
 def suite():
