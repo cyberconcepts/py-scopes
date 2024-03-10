@@ -5,10 +5,7 @@ import unittest
 
 from scopes.storage import folder, tracking
 
-#import config
-class Config(object): pass
-
-config = Config()
+import config
 config.dbengine = 'postgresql'
 config.dbname = 'ccotest'
 config.dbuser = 'ccotest'
