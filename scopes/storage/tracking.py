@@ -81,8 +81,14 @@ class Container(object):
         self.table = self.getTable()
 
     def get(self, trackId):
-        stmt = self.table.select().where(self.table.c.trackid == trackId)
+        stmt = self.table.select().where(self.table.c.trackid == int(trackId))
         return self.makeTrack(self.session.execute(stmt).first())
+
+    def __getitem__(self, trackId):
+        tr = self.get(trackId)
+        if tr is None:
+            raise KeyError(trackId)
+        return tr
 
     def query(self, **crit):
         stmt = self.table.select().where(
