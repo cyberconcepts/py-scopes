@@ -79,11 +79,14 @@ class StorageFactory(object):
     IdType = Integer
     JsonType = JSON
 
-    def __init__(self, config, storageClass=Storage):
+    storageClass = Storage
+
+    def __init__(self, config, storageClass=None):
         self.engine = self.getEngine(config.dbengine, config.dbname, 
                                      config.dbuser, config.dbpassword) 
         self.Session = self.sessionFactory()
-        self.storageClass = storageClass
+        if storageClass is not None:
+            self.storageClass = storageClass
 
     def __call__(self, schema=None):
         return self.storageClass(self, schema=schema)
