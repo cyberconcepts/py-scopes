@@ -34,7 +34,8 @@ class Test(unittest.TestCase):
         trid01 = tracks.save(tr01)
         self.assertTrue(trid01 > 0)
 
-        tr01a = tracks.get(trid01)
+        #tr01a = tracks.get(trid01)
+        tr01a = tracks['%07i' % trid01]
         self.assertEqual(tr01a.head, tr01.head)
         self.assertEqual(tr01a.trackId, trid01)
         self.assertEqual(tr01a.data.get('activity'), 'testing')
