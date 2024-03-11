@@ -27,3 +27,8 @@ test = ["pytest"]
 [tool.setuptools]
 packages = ["scopes"]
 
+[tool.pytest.ini_options]
+addopts = "-vv"
+python_files = "test_standard.py" # default: run only `standard` tests
+# use .pytest.ini file with `python_files = test_*.py` to run all tests
+
