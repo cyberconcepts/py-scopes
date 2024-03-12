@@ -10,9 +10,11 @@ class Folder(Track):
     headFields = ['parent', 'name', 'ref']
     prefix = 'fldr'
 
+    def items(self):
+        return ((f.name, f) for f in self.container.query(parent=self.rid))
+
     def keys(self):
-        for f in self.container.query(parent=self.rid):
-            yield f.name
+        return (k for k, v in self.items())
 
     def get(self, key, default=None):
         value = self.container.queryLast(parent=self.rid, name=key)
