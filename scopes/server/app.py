@@ -5,6 +5,8 @@ from zope.publisher.browser import BrowserRequest
 from zope.publisher.publish import publish
 from zope.traversing.publicationtraverse import PublicationTraverser
 
+from scopes.storage.folder import Root
+
 
 def demo_app(environ, start_response):
     print(f'*** environ {environ}.')
@@ -14,17 +16,25 @@ def demo_app(environ, start_response):
     return ['Hello World'.encode()]
 
 
-def zope_app(environ, start_response):
-    request = BrowserRequest(environ['wsgi.input'], environ)
-    request.setPublication(DefaultPublication(AppRoot()))
-    request = publish(request, False)
-    response = request.response
-    start_response(response.getStatusString(), response.getHeaders())
-    return response.consumeBodyIter()
+def zope_app_factory(config):
+    config.storageFactory = config.StorageFactory(config)
+    def zope_app(environ, start_response):
+        request = BrowserRequest(environ['wsgi.input'], environ)
+        storage = config.storageFactory(config.dbschema)
+        appRoot = Root(storage, config)
+        request.setPublication(DefaultPublication(appRoot))
+        request = publish(request, False)
+        response = request.response
+        start_response(response.getStatusString(), response.getHeaders())
+        return response.consumeBodyIter()
+    return zope_app
 
 
 class AppRoot:
     """Zope Demo AppRoot"""
+
+    def __init__(self, config):
+        self.config = config
 
     def __call__(self):
         """calling AppRoot"""

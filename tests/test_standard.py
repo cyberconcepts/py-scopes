@@ -3,24 +3,23 @@
 """Tests for the 'scopes.storage' package."""
 
 import unittest
+import tlib_storage
 
+from scopes.storage.common import StorageFactory
 import config
 config.dbengine = 'sqlite'
 config.dbname = 'var/test.db'
+config.dbschema = None
+config.storageFactory = StorageFactory(config)
 
-from scopes.storage.common import StorageFactory
-factory = StorageFactory(config)
-storage = factory(schema=None)
-
-import tlib
 
 class Test(unittest.TestCase):
 
     def test_001_tracking(self):
-        tlib.test_tracking(self, storage)
+        tlib_storage.test_tracking(self, config)
 
     def test_002_folder(self):
-        tlib.test_folder(self, storage)
+        tlib_storage.test_folder(self, config)
 
 def suite():
     return unittest.TestSuite((

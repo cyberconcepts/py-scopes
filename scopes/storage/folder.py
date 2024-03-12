@@ -5,6 +5,7 @@ from scopes.storage.tracking import Container, Track
 
 
 class Folder(Track):
+    """Needs docstring to be traversable."""
 
     headFields = ['parent', 'name', 'ref']
     prefix = 'fldr'
@@ -30,12 +31,16 @@ class Folder(Track):
         value.set('name', key)
         self.container.save(value)
 
+    def __call__(self, request=None):
+        return 'folder: %s; keys: %s' % (self.name, list(self.keys()))
+
 
 class Root(Folder):
     """A dummy (virtual) root folder for creating real folders
        using the Folder API."""
 
-    def __init__(self, storage):
+    def __init__(self, storage, config=None):
+        self.config = config
         cont = storage.create(Folders)
         super(Root, self).__init__(container=cont)
 
