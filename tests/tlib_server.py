@@ -11,7 +11,7 @@ from scopes.storage.folder import Root
 
 
 def publishRequest(config, storage, path):
-    appRoot = Root(storage, config)
+    appRoot = Root(storage)
     request = TestRequest(environ=dict(PATH_INFO=path))
     request.setPublication(Publication(appRoot))
     request = publish(request, False)

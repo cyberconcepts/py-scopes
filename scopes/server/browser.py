@@ -40,6 +40,5 @@ class DefaultView:
         result = dict(head=ob.head, data=ob.data)
         if IContainer.providedBy(ob):
             result['items'] = list(ob.keys())
-        print('***', result)
         return json.dumps(result)
 

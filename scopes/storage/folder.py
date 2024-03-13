@@ -45,8 +45,7 @@ class Root(Folder):
     """A dummy (virtual) root folder for creating real folders
        using the Folder API."""
 
-    def __init__(self, storage, config=None):
-        self.config = config
+    def __init__(self, storage):
         cont = storage.create(Folders)
         super(Root, self).__init__(container=cont)
 

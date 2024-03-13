@@ -60,7 +60,7 @@ def test_tracking(self, config):
 def test_folder(self, config):
         storage = config.storageFactory(config.dbschema)
         storage.dropTable('folders')
-        root = folder.Root(storage, config)
+        root = folder.Root(storage)
         self.assertEqual(list(root.keys()), [])
         root['top'] = folder.Folder()
         self.assertEqual(list(root.keys()), ['top'])

@@ -14,10 +14,10 @@ def zope_app_factory(config):
     storageFactory = config.StorageFactory(config)
     def zope_app(environ, start_response):
         storage = storageFactory(config.dbschema)
-        appRoot = Root(storage, config)
+        appRoot = Root(storage)
         request = BrowserRequest(environ['wsgi.input'], environ)
         request.setPublication(Publication(appRoot))
-        request = publish(request, False)
+        request = publish(request, True)
         response = request.response
         start_response(response.getStatusString(), response.getHeaders())
         return response.consumeBodyIter()
@@ -40,4 +40,10 @@ class Publication(DefaultPublication):
         if IView.providedBy(ob):
             return ob, ()
         return ob, ('index.html',)
+
+    def handleException(self, ob, request, exc_info, retry_allowed=True):
+        if exc_info[0] != NotFound:
+            raise
+        request.response.reset()
+        request.response.handleException(exc_info)
 
