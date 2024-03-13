@@ -11,11 +11,8 @@ class ITraversable(Interface):
 
 class IContainer(ITraversable):
 
-    def items():
-        """Return a sequence of key, value pairs of child objects."""
-
-    def keys():
-        """Return a sequence of keys of child objects."""
+    def values():
+        """Return a sequence of child objects."""
 
     def __getitem__(key):
         """Return the item addressed by `key`; rais KeyError if not found."""

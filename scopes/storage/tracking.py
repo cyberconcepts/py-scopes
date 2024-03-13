@@ -62,6 +62,13 @@ class Track(object):
             return ''
         return str(self.trackId)
 
+    def __repr__(self):
+        return '%s: %s' % (self.__class__.__name__, self.asDict())
+
+    def asDict(self):
+        return dict(uid=self.uid, head=self.head, data=self.data, 
+                    timeStamp = str(self.timeStamp)[:19])
+
 
 @registerContainerClass
 class Container(object):

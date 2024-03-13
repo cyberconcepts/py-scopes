@@ -39,6 +39,6 @@ class DefaultView:
         ob = self.context
         result = dict(head=ob.head, data=ob.data)
         if IContainer.providedBy(ob):
-            result['items'] = list(ob.keys())
+            result['items'] = [v.asDict() for v in ob.values()]
         return json.dumps(result)
 

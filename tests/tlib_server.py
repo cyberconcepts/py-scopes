@@ -22,5 +22,5 @@ def test_app(self, config):
     storage = config.storageFactory(config.dbschema)
     response = publishRequest(config, storage, '/top')
     result = json.loads(response.consumeBody())
-    self.assertEqual(result['items'], ['child1'])
+    self.assertEqual(result['items'][0]['head']['name'], 'child1')
 

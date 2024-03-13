@@ -14,11 +14,14 @@ class Folder(Track):
     headFields = ['parent', 'name', 'ref']
     prefix = 'fldr'
 
+    def values(self):
+        return self.container.query(parent=self.rid)
+
     def items(self):
-        return ((f.name, f) for f in self.container.query(parent=self.rid))
+        return ((v.name, v) for v in self.values())
 
     def keys(self):
-        return (k for k, v in self.items())
+        return (v.name for v in self.values())
 
     def get(self, key, default=None):
         value = self.container.queryLast(parent=self.rid, name=key)
@@ -38,7 +41,8 @@ class Folder(Track):
         self.container.save(value)
 
     def __str__(self):
-        return 'folder: %s; keys: %s' % (self.name, list(self.keys()))
+        return '%s: %s; keys: %s' % (self.__class__.__name__,
+                self.name, list(self.keys()))
 
 
 class Root(Folder):
