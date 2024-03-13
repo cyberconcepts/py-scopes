@@ -1,9 +1,13 @@
 # scopes.storage.folder
 
+from zope.interface import implementer
+
+from scopes.interfaces import IContainer
 from scopes.storage.common import registerContainerClass
 from scopes.storage.tracking import Container, Track
 
 
+@implementer(IContainer)
 class Folder(Track):
     """Needs docstring to be traversable."""
 
@@ -33,7 +37,7 @@ class Folder(Track):
         value.set('name', key)
         self.container.save(value)
 
-    def __call__(self, request=None):
+    def __str__(self):
         return 'folder: %s; keys: %s' % (self.name, list(self.keys()))
 
 
