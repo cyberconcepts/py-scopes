@@ -3,7 +3,7 @@
 """Tests for the 'scopes.storage' package."""
 
 import unittest
-import tlib_storage
+import tlib_server, tlib_storage
 
 from scopes.storage.common import StorageFactory
 import config
@@ -20,6 +20,10 @@ class Test(unittest.TestCase):
 
     def test_002_folder(self):
         tlib_storage.test_folder(self, config)
+
+    def test_003_server(self):
+        tlib_server.test_app(self, config)
+
 
 def suite():
     return unittest.TestSuite((

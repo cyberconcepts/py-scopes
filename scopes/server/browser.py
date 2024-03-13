@@ -27,6 +27,7 @@ def getView(request, ob, name):
 
 
 @register(None, 'index.html')
+@register(None, 'index.json')
 @implementer(IView)
 class DefaultView:
 
@@ -39,5 +40,6 @@ class DefaultView:
         result = dict(head=ob.head, data=ob.data)
         if IContainer.providedBy(ob):
             result['items'] = list(ob.keys())
+        print('***', result)
         return json.dumps(result)
 

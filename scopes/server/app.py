@@ -1,11 +1,9 @@
 # scopes.server.app
 
-import json
 from zope.publisher.base import DefaultPublication
 from zope.publisher.browser import BrowserRequest
 from zope.publisher.interfaces import NotFound
 from zope.publisher.publish import publish
-from zope.traversing.publicationtraverse import PublicationTraverser
 
 from scopes.interfaces import ITraversable, IView
 from scopes.server.browser import getView
