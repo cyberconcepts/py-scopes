@@ -17,6 +17,7 @@ class Concept(Track):
 class Concepts(Container):
 
     insertOnChange = False
+    indexes = None
  
 
 class Predicate(Concept):
@@ -69,3 +70,15 @@ class Types(Concepts):
     itemFactory = Type
     indexes = [('name',), ('tprefix',)]
     tableName = 'types'
+
+
+def storeType(storage, cls, name):
+    types = storage.create(Types)
+    types.save(Type(name, cls.prefix))
+    storage.commit()
+
+def setupCoreTypes(storage):
+    for c in registry.values():
+        cls = c.itemFactory
+        storeType(storage, cls, cls.__name__.lower())
+
