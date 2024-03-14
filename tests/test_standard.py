@@ -21,7 +21,10 @@ class Test(unittest.TestCase):
     def test_002_folder(self):
         tlib_storage.test_folder(self, config)
 
-    def test_003_server(self):
+    def test_003_type(self):
+        tlib_storage.test_type(self, config)
+
+    def test_013_server(self):
         tlib_server.test_app(self, config)
 
 

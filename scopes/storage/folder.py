@@ -9,7 +9,6 @@ from scopes.storage.tracking import Container, Track
 
 @implementer(IContainer)
 class Folder(Track):
-    """Needs docstring to be traversable."""
 
     headFields = ['parent', 'name', 'ref']
     prefix = 'fldr'

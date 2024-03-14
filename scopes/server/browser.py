@@ -4,13 +4,16 @@ import json
 from zope.interface import implementer
 from scopes.interfaces import IContainer, IView
 
-views = {}
+views = {} # registry for all views: {name: {prefix: viewClass, ...}, ...}
 
-def register(contextClass, name):
+def register(name, *contextClasses):
+    """Use as decorator: `@register(name, class, ...). 
+       class `None` means default view for all classes."""
     def doRegister(viewClass):
         nameEntry = views.setdefault(name, {})
-        key = contextClass and contextClass.prefix or ''
-        nameEntry[key] = viewClass
+        for cl in contextClasses:
+            key = cl and cl.prefix or ''
+            nameEntry[key] = viewClass
         return viewClass
     return doRegister
 
@@ -26,8 +29,8 @@ def getView(request, ob, name):
     return viewClass(ob, request)
 
 
-@register(None, 'index.html')
-@register(None, 'index.json')
+@register('index.html', None)
+@register('index.json', None)
 @implementer(IView)
 class DefaultView:
 
