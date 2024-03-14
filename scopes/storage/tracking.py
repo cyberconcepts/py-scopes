@@ -98,8 +98,11 @@ class Container(object):
         return tr
 
     def query(self, **crit):
-        stmt = self.table.select().where(
+        if crit:
+            stmt = self.table.select().where(
                 and_(*self.setupWhere(crit))).order_by(self.table.c.trackid)
+        else:
+            stmt = self.table.select().order_by(self.table.c.trackid)
         for r in self.session.execute(stmt):
             yield self.makeTrack(r)
 
@@ -109,6 +112,7 @@ class Container(object):
         return self.makeTrack(self.session.execute(stmt).first())
 
     def save(self, track):
+        track.container = self
         crit = dict((hf, track.head[hf]) for hf in track.headFields)
         found = self.queryLast(**crit)
         if found is None:

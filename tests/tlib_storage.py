@@ -78,7 +78,15 @@ def test_type(self, config):
         storage = config.storageFactory(config.dbschema)
         storage.dropTable('types')
         types = storage.create(concept.Types)
-        tid01 = types.save(concept.Type('type', 'type'))
-        self.assertEqual(tid01, 1)
+        ttype = concept.Type('type', concept.Type.prefix)
+        ttid = types.save(ttype)
+        self.assertEqual(ttid, 1)
+        tps = list(ttype.values())
+        self.assertEqual(len(tps), 1)
+
+        tfolder = concept.Type('folder', folder.Folder.prefix)
+        tfid = types.save(tfolder)
+        fldrs = list(tfolder.values())
+        self.assertEqual(len(fldrs), 2)
 
         storage.commit()

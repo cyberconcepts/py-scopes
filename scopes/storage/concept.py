@@ -4,7 +4,7 @@
 
 from zope.interface import implementer
 from scopes.interfaces import IConcept
-from scopes.storage.common import registerContainerClass
+from scopes.storage.common import registerContainerClass, registry
 from scopes.storage.tracking import Container, Track
 
 
@@ -51,16 +51,21 @@ class Rels(Container):
 
 class Type(Concept):
 
-    headFields = ['name', 'prefix']
+    headFields = ['name', 'tprefix']
     prefix = 'type'
 
-    def get(key, default=None):
-        return self.container.queryLast(name=key) or default
+    def get(self, key, default=None):
+        cont = self.container.storage.getContainer(self.tprefix)
+        return cont.queryLast(name=key) or default
+
+    def values(self):
+        cont = self.container.storage.getContainer(self.tprefix)
+        return cont.query()
 
 
 @registerContainerClass
 class Types(Concepts):
 
     itemFactory = Type
-    indexes = [('name',), ('prefix',)]
+    indexes = [('name',), ('tprefix',)]
     tableName = 'types'
