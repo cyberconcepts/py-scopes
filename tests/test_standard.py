@@ -24,6 +24,9 @@ class Test(unittest.TestCase):
     def test_003_type(self):
         tlib_storage.test_type(self, config)
 
+    def test_004_topic(self):
+        tlib_storage.test_topic(self, config)
+
     def test_013_server(self):
         tlib_server.test_app(self, config)
 

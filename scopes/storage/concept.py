@@ -52,6 +52,13 @@ class Predicates(Concepts):
     tableName = 'preds'
 
 
+defaultPredicate = 'standard'
+
+def storePredicate(storage, name):
+    preds = storage.getContainer('pred')
+    preds.save(Predicate(name))
+
+
 class Triple(Track):
 
     headFields = ['first', 'second', 'predicate']
@@ -75,8 +82,6 @@ class Rels(Container):
                ('first', 'second'), ('predicate', 'second')]
     tableName = 'rels'
     insertOnChange = False
-
-    defaultPredicate = 'standard'
 
 
 # types stuff
