@@ -9,34 +9,39 @@ views = {} # registry for all views: {name: {prefix: viewClass, ...}, ...}
 def register(name, *contextClasses):
     """Use as decorator: `@register(name, class, ...). 
        class `None` means default view for all classes."""
-    def doRegister(viewClass):
+    def doRegister(factory):
+        implementer(IView)(factory)
         nameEntry = views.setdefault(name, {})
         for cl in contextClasses:
-            key = cl and cl.prefix or ''
-            nameEntry[key] = viewClass
-        return viewClass
+            nameEntry[cl.prefix] = factory
+        else:
+            nameEntry[''] = factory
+        return factory
     return doRegister
 
 def getView(request, ob, name):
     nameEntry = views.get(name)
     if nameEntry is None:
         return None
-    viewClass = nameEntry.get(ob.__class__.prefix)
-    if viewClass is None:
-        viewClass = nameEntry.get('')
-    if viewClass is None:
+    factory = nameEntry.get(ob.prefix)
+    if factory is None:
+        factory = nameEntry.get('')
+    if factory is None:
         return None
-    return viewClass(ob, request)
+    return factory(ob, request)
 
 
-@register('index.html', None)
-@register('index.json', None)
-@implementer(IView)
+@register('index.html')
+@register('index.json')
 class DefaultView:
 
     def __init__(self, context, request):
         self.context = context
         self.request = request
+
+    def __call__(self):
+        result = self.prepareResult()
+        return self.render(result)
 
     def prepareResult(self):
         ob = self.context
@@ -51,11 +56,8 @@ class DefaultView:
                     result['target']['items'] = [v.asDict() for v in target.values()]
         return result
 
-    def renderJson(self, result):
+    def render(self, result):
         self.request.response.setHeader('Content-type', 'application/json; charset=utf-8')
         return json.dumps(result).encode('UTF-8')
 
-    def __call__(self):
-        result = self.prepareResult()
-        return self.renderJson(result)
 

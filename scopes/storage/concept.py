@@ -22,7 +22,6 @@ class Concept(Track):
        return (t.getSecond() for t in  self.children(Rels.defaultPredicate))
 
 
-
 class Concepts(Container):
 
     insertOnChange = False

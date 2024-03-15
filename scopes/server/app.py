@@ -7,7 +7,7 @@ from zope.publisher.publish import publish
 
 from scopes.interfaces import ITraversable, IView
 from scopes.server.browser import getView
-import scopes.storage.concept 
+import scopes.storage.concept # register container classes
 from scopes.storage.folder import Root
 
 
