@@ -24,17 +24,6 @@ class IContainer(ITraversable):
         and the value object (e.g. `parent´ and `name`) are stored correctly."""
 
 
-class IConcept(IContainer):
-
-    def parents(*predicates):
-        """Return a sequence of `Triple`s in which this object is 
-           referenced as `second`."""
-
-    def children(*predicates):
-        """Return a sequence of `Triple`s in which this object is 
-           referenced as `first`."""
-
-
 class IView(Interface):
 
     def __call__():

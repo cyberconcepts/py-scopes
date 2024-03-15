@@ -169,7 +169,7 @@ class Container(object):
                 *r[1:-2], trackId=r[0],timeStamp=r[-2], data=r[-1], container=self)
 
     def setupWhere(self, crit):
-        return [self.table.c[k.lower()] == v for k, v in crit.items()]
+        return [self.table.c[k.lower()] == v for k, v in crit.items() if v is not None]
 
     def setupValues(self, track, withTrackId=False):
         values = {}
