@@ -2,12 +2,12 @@
 
 from zope.interface import implementer
 
-from scopes.interfaces import IContainer
+from scopes.interfaces import IContainer, IReference
 from scopes.storage.common import registerContainerClass
 from scopes.storage.tracking import Container, Track
 
 
-@implementer(IContainer)
+@implementer(IContainer, IReference)
 class Folder(Track):
 
     headFields = ['parent', 'name', 'ref']
@@ -29,7 +29,7 @@ class Folder(Track):
         return value
 
     def __getitem__(self, key):
-        value = self.container.queryLast(parent=self.rid, name=key)
+        value = self.get(key)
         if value is None:
             raise KeyError(key)
         return value
@@ -38,6 +38,15 @@ class Folder(Track):
         value.set('parent', self.rid)
         value.set('name', key)
         self.container.save(value)
+
+    def getTarget(self):
+        if self.ref == '':
+            return None
+        return self.container.storage.getItem(self.ref)
+
+    def setTarget(self, target):
+        self.ref = target.uid
+        self.container.save(self)
 
     def __str__(self):
         return '%s: %s; keys: %s' % (self.__class__.__name__,

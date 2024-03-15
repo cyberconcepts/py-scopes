@@ -24,6 +24,15 @@ class IContainer(ITraversable):
         and the value object (e.g. `parent´ and `name`) are stored correctly."""
 
 
+class IReference(Interface):
+
+    def getTarget():
+        """Return item referenced by this object."""
+
+    def setTarget(target):
+        """Store reference to target item."""
+
+
 class IView(Interface):
 
     def __call__():

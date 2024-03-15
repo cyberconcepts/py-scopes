@@ -3,6 +3,7 @@
 """Core classes for concept map structure."""
 
 from zope.interface import implementer
+from scopes.interfaces import IContainer
 from scopes.storage.common import registerContainerClass, registry
 from scopes.storage.tracking import Container, Track
 
@@ -16,6 +17,10 @@ class Concept(Track):
 
     def children(self, predicate=None):
         return self.container.queryRels(first=self, predicate=predicate)
+
+    def values(self):
+       return (t.getSecond() for t in  self.children(Rels.defaultPredicate))
+
 
 
 class Concepts(Container):
@@ -77,18 +82,30 @@ class Rels(Container):
 
 # types stuff
 
+@implementer(IContainer)
 class Type(Concept):
 
     headFields = ['name', 'tprefix']
     prefix = 'type'
 
+    def values(self):
+        cont = self.container.storage.getContainer(self.tprefix)
+        return cont.query()
+
     def get(self, key, default=None):
         cont = self.container.storage.getContainer(self.tprefix)
         return cont.queryLast(name=key) or default
 
-    def values(self):
+    def __getitem__(self, key):
+        value = self.get(key)
+        if value is None:
+            raise KeyError(key)
+        return value
+
+    def __setitem__(self, key, value):
         cont = self.container.storage.getContainer(self.tprefix)
-        return cont.query()
+        value.name = key
+        cont.save(value)
 
 
 @registerContainerClass
@@ -100,7 +117,7 @@ class Types(Concepts):
 
 
 def storeType(storage, cls, name):
-    types = storage.create(Types)
+    types = storage.getContainer('type')
     types.save(Type(name, cls.prefix))
 
 def setupCoreTypes(storage):

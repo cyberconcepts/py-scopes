@@ -7,6 +7,7 @@ from zope.publisher.publish import publish
 
 from scopes.interfaces import ITraversable, IView
 from scopes.server.browser import getView
+import scopes.storage.concept 
 from scopes.storage.folder import Root
 
 

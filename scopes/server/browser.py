@@ -2,7 +2,7 @@
 
 import json
 from zope.interface import implementer
-from scopes.interfaces import IContainer, IView
+from scopes.interfaces import IContainer, IReference, IView
 
 views = {} # registry for all views: {name: {prefix: viewClass, ...}, ...}
 
@@ -38,10 +38,24 @@ class DefaultView:
         self.context = context
         self.request = request
 
-    def __call__(self):
+    def prepareResult(self):
         ob = self.context
-        result = dict(head=ob.head, data=ob.data)
+        result = ob.asDict()
         if IContainer.providedBy(ob):
             result['items'] = [v.asDict() for v in ob.values()]
-        return json.dumps(result)
+        if IReference.providedBy(ob):
+            target = ob.getTarget()
+            if target:
+                result['target'] = target.asDict()
+                if IContainer.providedBy(target):
+                    result['target']['items'] = [v.asDict() for v in target.values()]
+        return result
+
+    def renderJson(self, result):
+        self.request.response.setHeader('Content-type', 'application/json; charset=utf-8')
+        return json.dumps(result).encode('UTF-8')
+
+    def __call__(self):
+        result = self.prepareResult()
+        return self.renderJson(result)
 
