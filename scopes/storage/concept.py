@@ -34,10 +34,10 @@ class Concepts(Container):
     indexes = None
 
     def queryRels(self, **crit):
-        pred = crit.get(predicate)
-        if pred is not None and isinstance(pred, ('string', 'bytes')):
-            crit['predicate'] = self.storage.getContainer(Predicate).queryLast(name=pred)
-        for k, v in crit.items:
+        #pred = crit.get(predicate)
+        #if pred is not None and isinstance(pred, ('string', 'bytes')):
+        #    crit['predicate'] = self.storage.getContainer(Predicate).queryLast(name=pred)
+        for k, v in crit.items():
             if isinstance(v, Track):
                 crit[k] = v.uid
         rels = self.storage.getContainer(Triple)

@@ -114,5 +114,8 @@ def test_topic(self, config):
     topics.save(tp_proglang)
     tp_itc.addChild(tp_proglang)
 
+    c = list(tp_itc.children())
+    self.assertEqual(c[0].getSecond().name, 'prog_lang')
+
     storage.commit()
     
