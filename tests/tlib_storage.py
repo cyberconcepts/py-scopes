@@ -79,7 +79,7 @@ def test_type(self, config):
     storage.dropTable('types')
     concept.setupCoreTypes(storage)
 
-    types = storage.getContainer(concept.Type.prefix)
+    types = storage.getContainer(concept.Type)
     tps = list(types.query())
     self.assertEqual(len(tps), 6)
     self.assertEqual(tps[0].name, 'track')
@@ -95,7 +95,7 @@ def test_type(self, config):
 def test_topic(self, config):
     storage = config.storageFactory(config.dbschema)
     storage.dropTable('topics')
-    topics = storage.getContainer(topic.Topic.prefix)
+    topics = storage.getContainer(topic.Topic)
     concept.storePredicate(storage, concept.defaultPredicate)
     root = folder.Root(storage)
     root['top']['topics'] = folder.Folder()

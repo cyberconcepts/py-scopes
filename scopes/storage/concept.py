@@ -30,11 +30,11 @@ class Concepts(Container):
     def queryRels(self, **crit):
         pred = crit.get(predicate)
         if pred is not None and isinstance(pred, ('string', 'bytes')):
-            crit['predicate'] = self.storage.getContainer('pred').queryLast(name=pred)
+            crit['predicate'] = self.storage.getContainer(Predicate).queryLast(name=pred)
         for k, v in crit.items:
             if isinstance(v, Track):
                 crit[k] = v.uid
-        rels = self.storage.getContainer('rel')
+        rels = self.storage.getContainer(Triple)
         return rels.query(**crit)
  
 
@@ -55,7 +55,7 @@ class Predicates(Concepts):
 defaultPredicate = 'standard'
 
 def storePredicate(storage, name):
-    preds = storage.getContainer('pred')
+    preds = storage.getContainer(Predicate)
     preds.save(Predicate(name))
 
 
@@ -92,12 +92,16 @@ class Type(Concept):
     headFields = ['name', 'tprefix']
     prefix = 'type'
 
+    @property
+    def typeClass(self):
+        return registry[self.tprefix].itemFactory
+
     def values(self):
-        cont = self.container.storage.getContainer(self.tprefix)
+        cont = self.container.storage.getContainer(self.typeClass)
         return cont.query()
 
     def get(self, key, default=None):
-        cont = self.container.storage.getContainer(self.tprefix)
+        cont = self.container.storage.getContainer(self.typeClass)
         return cont.queryLast(name=key) or default
 
     def __getitem__(self, key):
@@ -107,7 +111,7 @@ class Type(Concept):
         return value
 
     def __setitem__(self, key, value):
-        cont = self.container.storage.getContainer(self.tprefix)
+        cont = self.container.storage.getContainer(self.typeClass)
         value.name = key
         cont.save(value)
 
@@ -121,7 +125,7 @@ class Types(Concepts):
 
 
 def storeType(storage, cls, name):
-    types = storage.getContainer('type')
+    types = storage.getContainer(Type)
     types.save(Type(name, cls.prefix))
 
 def setupCoreTypes(storage):

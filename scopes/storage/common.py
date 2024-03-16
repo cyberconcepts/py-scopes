@@ -33,7 +33,8 @@ class Storage(object):
     def add(self, container):
         self.containers[container.itemFactory.prefix] = container
 
-    def getContainer(self, prefix):
+    def getContainer(self, itemClass):
+        prefix = itemClass.prefix
         container = self.containers.get(prefix)
         if container is None:
             return self.create(registry[prefix])
@@ -41,9 +42,8 @@ class Storage(object):
 
     def getItem(self, uid):
         prefix, id = uid.split('-')
-        id = int(id)
-        container = self.getContainer(prefix)
-        return container.get(id)
+        cls = registry[prefix].itemFactory
+        return self.getContainer(cls).get(int(id))
 
     def getExistingTable(self, tableName):
         metadata = self.metadata
