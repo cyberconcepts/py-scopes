@@ -115,7 +115,7 @@ def test_topic(self, config):
     tp_itc.addChild(tp_proglang)
 
     c = list(tp_itc.children())
-    self.assertEqual(c[0].getSecond().name, 'prog_lang')
+    self.assertEqual(c[0].name, 'prog_lang')
 
     storage.commit()
     

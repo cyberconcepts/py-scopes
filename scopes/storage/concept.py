@@ -15,15 +15,21 @@ class Concept(Track):
     headFields = ['name']
 
     def parents(self, predicate=None):
+        return (r.getFirst() for r in self.parentRels(predicate))
+
+    def parentRels(self, predicate=None):
         return self.container.queryRels(second=self, predicate=predicate)
 
     def children(self, predicate=None):
+        return (r.getSecond() for r in self.childRels(predicate))
+
+    def childRels(self, predicate=None):
         return self.container.queryRels(first=self, predicate=predicate)
 
     def values(self):
-       return (t.getSecond() for t in  self.children(Rels.defaultPredicate))
+        return self.children(defaultPredicate)
 
-    def addChild(self, child, predicate = defaultPredicate):
+    def addChild(self, child, predicate=defaultPredicate):
         rels = self.container.storage.getContainer(Triple)
         rels.save(Triple(self.uid, child.uid, predicate))
 
