@@ -96,11 +96,17 @@ def test_topic(self, config):
     storage = config.storageFactory(config.dbschema)
     storage.dropTable('topics')
     topics = storage.getContainer(topic.Topic)
+    types = storage.getContainer(concept.Type)
     concept.storePredicate(storage, concept.defaultPredicate)
     root = folder.Root(storage)
-    root['top']['topics'] = folder.Folder()
+    root['top']['topics'] = ftopics = folder.Folder()
+    ttopic = types.queryLast(name='topic')
+    self.assertEqual(ttopic.name, 'topic')
+    ftopics.setTarget(ttopic)
+    self.assertEqual(ftopics.ref, 'type-6')
 
-    tp_itc = topic.Topic('itc')
+    tp_itc = topic.Topic('itc', data=dict(
+        title='ITC', description='Information and Communication Technology'))
     topics.save(tp_itc)
 
     storage.commit()

@@ -119,10 +119,16 @@ class Container(object):
             return self.insert(track)
         if self.insertOnChange and found.data != track.data:
             return self.insert(track)
-        if found.data != track.data or found.timeStamp != track.timeStamp:
+        changed = False
+        if found.data != track.data:
             found.update(track.data)
+            changed = True
+        if track.timeStamp is not None and found.timeStamp != track.timeStamp:
             found.timeStamp = track.timeStamp
+            changed = True
+        if changed:
             self.update(found)
+        track.trackId = found.trackId
         return found.trackId
 
     def insert(self, track, withTrackId=False):
@@ -130,14 +136,15 @@ class Container(object):
         values = self.setupValues(track, withTrackId)
         stmt = t.insert().values(**values).returning(t.c.trackid)
         trackId = self.session.execute(stmt).first()[0]
+        track.trackId = trackId
         self.storage.mark_changed()
         return trackId
 
-    def update(self, track):
+    def update(self, track, updateTimeStamp=False):
         t = self.table
+        if updateTimeStamp or track.timeStamp is None:
+            track.timeStamp = datetime.now()
         values = self.setupValues(track)
-        if track.timeStamp is None:
-            values['timestamp'] = datetime.now()
         stmt = t.update().values(**values).where(t.c.trackid == track.trackId)
         n = self.session.execute(stmt).rowcount
         if n > 0:

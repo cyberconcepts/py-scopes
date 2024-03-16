@@ -45,8 +45,8 @@ class Folder(Track):
         return self.container.storage.getItem(self.ref)
 
     def setTarget(self, target):
-        self.ref = target.uid
-        self.container.save(self)
+        self.set('ref', target.uid)
+        self.container.update(self)
 
     def __str__(self):
         return '%s: %s; keys: %s' % (self.__class__.__name__,
