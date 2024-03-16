@@ -20,8 +20,12 @@ class Track(object):
     headFields = ['taskId', 'userName']
     prefix = 'rec'
 
-    def __init__(self, *keys, data=None, timeStamp=None, trackId=None, container=None):
+    def __init__(self, *keys, data=None, timeStamp=None, trackId=None, 
+                 container=None, **kw):
         self.head = {}
+        for k, v in kw.items():
+            if k in self.headFields:
+                self.head[k] = kw.pop(k)
         for ix, k in enumerate(keys):
             self.head[self.headFields[ix]] = k
         for k in self.headFields:

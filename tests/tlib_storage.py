@@ -108,6 +108,11 @@ def test_topic(self, config):
     tp_itc = topic.Topic('itc', data=dict(
         title='ITC', description='Information and Communication Technology'))
     topics.save(tp_itc)
+    tp_proglang = topic.Topic('prog_lang', data=dict(
+        title='Programming Languages', 
+        description='Programming Languages'))
+    topics.save(tp_proglang)
+    tp_itc.addChild(tp_proglang)
 
     storage.commit()
     

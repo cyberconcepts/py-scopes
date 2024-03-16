@@ -7,6 +7,8 @@ from scopes.interfaces import IContainer
 from scopes.storage.common import registerContainerClass, registry
 from scopes.storage.tracking import Container, Track
 
+defaultPredicate = 'standard'
+
 
 class Concept(Track):
 
@@ -20,6 +22,10 @@ class Concept(Track):
 
     def values(self):
        return (t.getSecond() for t in  self.children(Rels.defaultPredicate))
+
+    def addChild(self, child, predicate = defaultPredicate):
+        rels = self.container.storage.getContainer(Triple)
+        rels.save(Triple(self.uid, child.uid, predicate))
 
 
 class Concepts(Container):
@@ -51,8 +57,6 @@ class Predicates(Concepts):
     itemFactory = Predicate
     tableName = 'preds'
 
-
-defaultPredicate = 'standard'
 
 def storePredicate(storage, name):
     preds = storage.getContainer(Predicate)
