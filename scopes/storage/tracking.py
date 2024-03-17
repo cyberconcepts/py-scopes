@@ -22,6 +22,9 @@ class Track(object):
 
     def __init__(self, *keys, **kw):
         self.head = {}
+        for k, v in kw.items():
+            if k in self.headFields:
+                self.head[k] = kw.pop(k)
         for ix, k in enumerate(keys):
             self.head[self.headFields[ix]] = k
         for k in self.headFields:
@@ -62,6 +65,13 @@ class Track(object):
             return ''
         return str(self.trackId)
 
+    def __repr__(self):
+        return '%s: %s' % (self.__class__.__name__, self.asDict())
+
+    def asDict(self):
+        return dict(uid=self.uid, head=self.head, data=self.data, 
+                    timeStamp = str(self.timeStamp)[:19])
+
 
 @registerContainerClass
 class Container(object):
@@ -91,8 +101,11 @@ class Container(object):
         return tr
 
     def query(self, **crit):
-        stmt = self.table.select().where(
+        if crit:
+            stmt = self.table.select().where(
                 and_(*self.setupWhere(crit))).order_by(self.table.c.trackid)
+        else:
+            stmt = self.table.select().order_by(self.table.c.trackid)
         for r in self.session.execute(stmt):
             yield self.makeTrack(r)
 
@@ -102,16 +115,23 @@ class Container(object):
         return self.makeTrack(self.session.execute(stmt).first())
 
     def save(self, track):
+        track.container = self
         crit = dict((hf, track.head[hf]) for hf in track.headFields)
         found = self.queryLast(**crit)
         if found is None:
             return self.insert(track)
         if self.insertOnChange and found.data != track.data:
             return self.insert(track)
-        if found.data != track.data or found.timeStamp != track.timeStamp:
+        changed = False
+        if found.data != track.data:
             found.update(track.data)
+            changed = True
+        if track.timeStamp is not None and found.timeStamp != track.timeStamp:
             found.timeStamp = track.timeStamp
+            changed = True
+        if changed:
             self.update(found)
+        track.trackId = found.trackId
         return found.trackId
 
     def insert(self, track, withTrackId=False):
@@ -119,14 +139,15 @@ class Container(object):
         values = self.setupValues(track, withTrackId)
         stmt = t.insert().values(**values).returning(t.c.trackid)
         trackId = self.session.execute(stmt).first()[0]
+        track.trackId = trackId
         self.storage.mark_changed()
         return trackId
 
-    def update(self, track):
+    def update(self, track, updateTimeStamp=False):
         t = self.table
+        if updateTimeStamp or track.timeStamp is None:
+            track.timeStamp = datetime.now()
         values = self.setupValues(track)
-        if track.timeStamp is None:
-            values['timestamp'] = datetime.now()
         stmt = t.update().values(**values).where(t.c.trackid == track.trackId)
         n = self.session.execute(stmt).rowcount
         if n > 0:
@@ -158,7 +179,7 @@ class Container(object):
                 *r[1:-2], trackId=r[0],timeStamp=r[-2], data=r[-1], container=self)
 
     def setupWhere(self, crit):
-        return [self.table.c[k.lower()] == v for k, v in crit.items()]
+        return [self.table.c[k.lower()] == v for k, v in crit.items() if v is not None]
 
     def setupValues(self, track, withTrackId=False):
         values = {}
