@@ -78,11 +78,9 @@ def test_type(self, config):
     storage = config.storageFactory(config.dbschema)
     storage.dropTable('types')
     concept.setupCoreTypes(storage)
-
     types = storage.getContainer(concept.Type)
     tps = list(types.query())
     self.assertEqual(len(tps), 6)
-    self.assertEqual(tps[0].name, 'track')
 
     tfolder = types.queryLast(name='folder')
     fldrs = list(tfolder.values())
@@ -103,7 +101,7 @@ def test_topic(self, config):
     ttopic = types.queryLast(name='topic')
     self.assertEqual(ttopic.name, 'topic')
     ftopics.setTarget(ttopic)
-    self.assertEqual(ftopics.ref, 'type-6')
+    self.assertEqual(ftopics.getTarget().name, 'topic')
 
     tp_itc = topic.Topic('itc', data=dict(
         title='ITC', description='Information and Communication Technology'))

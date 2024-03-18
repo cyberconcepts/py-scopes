@@ -21,7 +21,7 @@ class IContainer(ITraversable):
         """Store the `value` under the `key`. 
 
         May modify `value` so that the attributes referencing this object
-        and the value object (e.g. `parent´ and `name`) are stored correctly."""
+        and the value object (e.g. `parent` and `name`) are stored correctly."""
 
 
 class IReference(Interface):
