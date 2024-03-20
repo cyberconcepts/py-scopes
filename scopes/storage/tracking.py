@@ -53,6 +53,11 @@ class Track(object):
         else:
             self.data.update(data)
 
+    def storeTrack(self):
+        """Make changes of this track persistent by updating the corresponding row
+        in its container."""
+        self.container.update(self)
+
     @property
     def uid(self):
         if self.trackId is None:
