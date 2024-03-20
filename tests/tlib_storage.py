@@ -70,6 +70,8 @@ def test_folder(self, config):
     ch1 = top['child1']
     self.assertEqual(ch1.parent, top.rid)
     self.assertEqual(list(top.keys()), ['child1'])
+    ch1.set('name', 'level2-item1')
+    ch1.storeTrack()
 
     storage.commit()
 
