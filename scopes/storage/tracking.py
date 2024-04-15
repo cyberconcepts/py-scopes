@@ -171,8 +171,8 @@ class Container(object):
                 return track.trackId
         return self.insert(track, withTrackId=True)
 
-    def remove(self, trackId):
-        stmt = self.table.delete().where(self.table.c.trackid == trackId)
+    def remove(self, track):
+        stmt = self.table.delete().where(self.table.c.trackid == track.trackId)
         n = self.session.execute(stmt).rowcount
         if n > 0:
             self.storage.mark_changed()
