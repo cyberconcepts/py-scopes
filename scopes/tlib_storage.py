@@ -50,7 +50,7 @@ def test_tracking(self, config):
     tr03 = storage.getItem('rec-31')
     self.assertEqual(tr03.trackId, 31)
 
-    n = tracks.remove(31)
+    n = tracks.remove(tr03)
     self.assertEqual(n, 1)
     self.assertEqual(tracks.get(31), None)
 
