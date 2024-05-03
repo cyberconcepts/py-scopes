@@ -54,11 +54,6 @@ class Track(object):
         else:
             self.data.update(data)
 
-    def storeTrack(self):
-        """Make changes of this track persistent by updating the corresponding row
-        in its container."""
-        self.container.update(self)
-
     @property
     def uid(self):
         if self.trackId is None:
@@ -76,7 +71,17 @@ class Track(object):
 
     def asDict(self):
         return dict(uid=self.uid, head=self.head, data=self.data, 
-                    timeStamp = str(self.timeStamp)[:19])
+                    timeStamp=str(self.timeStamp)[:19])
+
+    # shortcuts for compatibility with existing software:
+
+    def updateIndex(self, **kw):
+        for k, v in kw.items():
+            self.set(k, v)
+        self.storeTrack()
+
+    def storeTrack(self):
+        self.container.update(self)
 
 
 @registerContainerClass

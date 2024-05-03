@@ -23,6 +23,12 @@ class Test(unittest.TestCase):
     def test_002_folder(self):
         tlib_storage.test_folder(self, config)
 
+    def test_003_type(self):
+        tlib_storage.test_type(self, config)
+
+    def test_004_topic(self):
+        tlib_storage.test_topic(self, config)
+
 def suite():
     return unittest.TestSuite((
         unittest.TestLoader().loadTestsFromTestCase(Test),
