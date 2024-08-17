@@ -112,6 +112,7 @@ def test_topic(self, config):
         title='Programming Languages', 
         description='Programming Languages'))
     topics.save(tp_proglang)
+    #storage.commit() # avoid "database locked" error with sqlite
     tp_itc.addChild(tp_proglang)
 
     c = list(tp_itc.children())
