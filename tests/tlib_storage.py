@@ -94,6 +94,8 @@ def test_type(self, config):
 
 def test_topic(self, config):
     storage = config.storageFactory(config.dbschema)
+    storage.dropTable('rels')
+    rels = storage.getContainer(concept.Triple)
     storage.dropTable('topics')
     topics = storage.getContainer(topic.Topic)
     types = storage.getContainer(concept.Type)
