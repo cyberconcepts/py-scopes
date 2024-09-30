@@ -22,13 +22,14 @@ postgres = [
 	"zope.sqlalchemy",
 ]
 app = ["python-dotenv", "zope.publisher", "zope.traversing"]
-test = ["pytest"]
+test = ["zope.testrunner"]
+#test = ["pytest"]
 
 [tool.setuptools]
 packages = ["scopes"]
 
-[tool.pytest.ini_options]
-addopts = "-vv"
-python_files = "test_standard.py" # default: run only `standard` tests
+#[tool.pytest.ini_options]
+#addopts = "-vv"
+#python_files = "test_standard.py" # default: run only `standard` tests
 # use .pytest.ini file with `python_files = test_*.py` to run all tests
 

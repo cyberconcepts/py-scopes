@@ -1,3 +1,5 @@
+# runtests.sh
+# run all unit / doc tests
 
-python tests/test_postgres.py $@
-python tests/test_standard.py $@
+zope-testrunner --test-path=. $*
+

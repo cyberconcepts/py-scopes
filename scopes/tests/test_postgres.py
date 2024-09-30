@@ -1,9 +1,12 @@
-#! /usr/bin/python
+# scopes.tests.test_postgres
 
 """Tests for the 'scopes.storage' package - using PostgreSQL."""
 
+import os, sys
+sys.path = [os.path.dirname(__file__)] + sys.path
+
 import unittest
-import tlib_storage
+from scopes.tests import tlib_storage
 
 from scopes.storage.db.postgres import StorageFactory 
 import config
@@ -29,10 +32,10 @@ class Test(unittest.TestCase):
     def test_004_topic(self):
         tlib_storage.test_topic(self, config)
 
-def suite():
+def test_suite():
     return unittest.TestSuite((
         unittest.TestLoader().loadTestsFromTestCase(Test),
     ))
 
 if __name__ == '__main__':
-    unittest.main(defaultTest='suite')
+    unittest.main(defaultTest='test_suite')

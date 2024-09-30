@@ -1,9 +1,12 @@
-#! /usr/bin/python
+# scopes.tests.test_standard
 
 """Tests for the 'scopes.storage' package."""
 
+import os, sys
+sys.path = [os.path.dirname(__file__)] + sys.path
+
 import unittest
-import tlib_server, tlib_storage
+from scopes.tests import tlib_server, tlib_storage
 
 from scopes.storage.common import StorageFactory
 import config
