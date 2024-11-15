@@ -21,7 +21,14 @@ postgres = [
 	"transaction",
 	"zope.sqlalchemy",
 ]
-app = ["python-dotenv", "zope.publisher", "zope.traversing"]
+app = [
+	"python-dotenv", 
+	"zope.authentication",
+	"zope.component",
+	"zope.interface",
+	"zope.publisher", 
+	"zope.traversing",
+]
 test = ["zope.testrunner"]
 #test = ["pytest"]
 
