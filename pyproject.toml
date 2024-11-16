@@ -24,7 +24,6 @@ postgres = [
 app = [
 	"python-dotenv", 
 	"zope.authentication",
-	"zope.component",
 	"zope.interface",
 	"zope.publisher", 
 	"zope.traversing",
