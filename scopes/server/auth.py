@@ -20,8 +20,6 @@ class JwtAuthentication:
         prc = authenticate(request)
         if prc is None and self.baseAuth is not None:
             prc = self.baseAuth.authenticate(request)
-        if prc is None:
-            raise Unauthorized
         return prc
 
     def getPrincipal(self, id):
