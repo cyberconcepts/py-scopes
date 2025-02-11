@@ -69,8 +69,12 @@ class StorageFactory(object):
          return self.engine.connect
 
     @staticmethod
-    def getEngine(dbtype, dbname, user, pw, host='localhost', port=5432, **kw):
+    def getEngine(dbtype, dbname, user, pw, **kw):
         return create_engine('%s:///%s' % (dbtype, dbname), **kw)
+
+    def engineFromConfig(self, config):
+        return self.getEngine(config.dbengine, config.dbname, 
+                              config.dbuser, config.dbpassword) 
 
     @staticmethod
     def mark_changed(session):
@@ -86,8 +90,7 @@ class StorageFactory(object):
     storageClass = Storage
 
     def __init__(self, config, storageClass=None):
-        self.engine = self.getEngine(config.dbengine, config.dbname, 
-                                     config.dbuser, config.dbpassword) 
+        self.engine = self.engineFromConfig(config)
         self.Session = self.sessionFactory()
         if storageClass is not None:
             self.storageClass = storageClass

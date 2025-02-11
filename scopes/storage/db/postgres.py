@@ -24,6 +24,12 @@ class StorageFactory(StorageFactory):
         return create_engine('%s://%s:%s@%s:%s/%s' % (
             dbtype, user, pw, host, port, dbname), **kw)
 
+    def engineFromConfig(self, config):
+        return self.getEngine(config.dbengine, config.dbname, 
+                              config.dbuser, config.dbpassword,
+                              host=getattr(config, 'dbhost', 'localhost'),
+                              port=getattr(config, 'dbport', 5432))
+
     @staticmethod
     def mark_changed(session):
         return mark_changed(session)
