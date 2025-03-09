@@ -34,3 +34,6 @@ class JwtAuthentication:
         if self.baseAuth is not None:
             return self.baseAuth.unauthorized(id, request)
 
+    def logout(self, request):
+        print('*** JwtAuthentication: logout')
+
