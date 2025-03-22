@@ -6,14 +6,16 @@ from scopes.interfaces import IContainer, IReference, IView
 
 views = {} # registry for all views: {name: {prefix: viewClass, ...}, ...}
 
-def register(name, *contextClasses):
-    """Use as decorator: `@register(name, class, ...). 
-       class `None` means default view for all classes."""
+def register(name, *contextTypes):
+    """Use as decorator: `@register(name, class_or_prefix, ...). 
+       No class (or `None` or `''`) means default view for all classes."""
     def doRegister(factory):
         implementer(IView)(factory)
         nameEntry = views.setdefault(name, {})
-        for cl in contextClasses:
-            nameEntry[cl.prefix] = factory
+        for ct in contextTypes:
+            if not isinstance(ct, string):
+                ct = ct.prefix
+            nameEntry[ct] = factory
         else:
             nameEntry[''] = factory
         return factory
