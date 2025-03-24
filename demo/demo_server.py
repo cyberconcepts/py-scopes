@@ -1,5 +1,8 @@
 # py-scopes/demo/demo_server.py
 
+from scopes.server import auth
+from scopes.storage import topic
+
 from wsgiref.simple_server import make_server
 
 def run(app, config):

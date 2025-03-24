@@ -1,9 +1,14 @@
 # scopes.interfaces
 
-from zope.interface import Interface
+from zope.interface import Interface, Attribute
 
 
-class ITraversable(Interface):
+class IViewable(Interface):
+
+    prefix = Attribute('Prefix string for identifying the type (class) of an object')
+
+
+class ITraversable(IViewable):
 
     def get(key, default=None):
         """Return the item addressed by `key`; return `default` if not found."""

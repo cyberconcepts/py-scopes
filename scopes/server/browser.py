@@ -12,12 +12,11 @@ def register(name, *contextTypes):
     def doRegister(factory):
         implementer(IView)(factory)
         nameEntry = views.setdefault(name, {})
-        for ct in contextTypes:
-            if not isinstance(ct, string):
+        cts = contextTypes or ['']
+        for ct in cts:
+            if not isinstance(ct, str):
                 ct = ct.prefix
             nameEntry[ct] = factory
-        else:
-            nameEntry[''] = factory
         return factory
     return doRegister
 
@@ -61,5 +60,3 @@ class DefaultView:
     def render(self, result):
         self.request.response.setHeader('Content-type', 'application/json; charset=utf-8')
         return json.dumps(result).encode('UTF-8')
-
-

@@ -7,6 +7,18 @@ from scopes.storage.common import registerContainerClass
 from scopes.storage.tracking import Container, Track
 
 
+class DummyFolder(dict):
+
+    prefix = 'dummy'
+
+    def asDict(self):
+        return self
+
+    def __repr__(self):
+        return '%s: %s' % (self.__class__.__name__, 
+                           super(DummyFolder, self).__repr__())
+
+
 @implementer(IContainer, IReference)
 class Folder(Track):
 
@@ -56,6 +68,8 @@ class Folder(Track):
 class Root(Folder):
     """A dummy (virtual) root folder for creating real folders
        using the Folder API."""
+
+    prefix = 'root'
 
     def __init__(self, storage):
         cont = storage.create(Folders)
