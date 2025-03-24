@@ -7,6 +7,8 @@ from zope.publisher.interfaces import Unauthorized
 from scopes.server.browser import DefaultView, register
 from scopes.storage.folder import DummyFolder, Root
 
+import config
+
 
 def authenticate(request):
     #print('*** authenticate')
@@ -21,6 +23,7 @@ class OidcAuthentication:
 
     def authenticate(self, request):
         prc = authenticate(request)
+        # prc = Authenticator().authenticate(request)
         if prc is None and self.baseAuth is not None:
             prc = self.baseAuth.authenticate(request)
         return prc
@@ -38,21 +41,40 @@ class OidcAuthentication:
             return self.baseAuth.unauthorized(id, request)
 
     def logout(self, request):
-        print('*** JwtAuthentication: logout')
+        print('*** OidcAuthentication: logout')
 
 JwtAuthentication = OidcAuthentication  # old name - still used?
 
 
 class Authenticator(DummyFolder):
+
     prefix = 'auth'
+
+    def authenticate(request):
+        return None
+
+    def login(self, request):
+        params = config.oidc_params
+        print('*** login', self, request.getTraversalStack(), request['PATH_INFO'])
+        print('***', dir(request))
 
 
 @register('auth', Root)
 def authView(context, request):
-    print('*** auth', context, request['PATH_INFO'], request.getTraversalStack())
+    print('*** auth', context, request['PATH_INFO'])
     return Authenticator()
 
 @register('login', Authenticator)
 def login(context, request):
-    print('*** login', context, request['PATH_INFO'], request.getTraversalStack())
+    context.login(request)
+    return DefaultView(context, request)
+
+@register('callback', Authenticator)
+def login(context, request):
+    print('*** callback', context, request['PATH_INFO'], request.getTraversalStack())
+    return DefaultView(context, request)
+
+@register('logout', Authenticator)
+def login(context, request):
+    print('*** logout', context, request['PATH_INFO'], request.getTraversalStack())
     return DefaultView(context, request)

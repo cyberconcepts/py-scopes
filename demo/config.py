@@ -18,3 +18,7 @@ dbuser = getenv('DBUSER', 'demo')
 dbpassword = getenv('DBPASSWORD', 'secret')
 dbschema = getenv('DBSCHEMA', 'demo')
 
+# authentication settings
+oidc_params = dict(
+    clientid=getenv('OIDC_CLIENTID', '311613119816392525')
+)

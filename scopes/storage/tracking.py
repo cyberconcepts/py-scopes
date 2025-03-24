@@ -67,7 +67,7 @@ class Track(object):
         return str(self.trackId)
 
     def __repr__(self):
-        return '%s: %s' % (self.__class__.__name__, self.asDict())
+        return '<%s: %s>' % (self.__class__.__name__, self.asDict())
 
     def asDict(self):
         return dict(uid=self.uid, head=self.head, data=self.data, 
