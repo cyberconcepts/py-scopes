@@ -1,5 +1,8 @@
 # scopes.server.auth
 
+from oic import oic, rndstr
+from oic.oic.message import AuthorizationResponse
+
 from zope.authentication.interfaces import IAuthentication
 from zope.interface import implementer
 from zope.publisher.interfaces import Unauthorized
@@ -56,7 +59,27 @@ class Authenticator(DummyFolder):
     def login(self, request):
         params = config.oidc_params
         print('*** login', self, request.getTraversalStack(), request['PATH_INFO'])
-        print('***', dir(request))
+        #print('***', dir(request))
+        client = oic.Client()
+        #providerInfo = client.provider_config(params['provider_url'])
+        #print('***', providerInfo)
+        #client.register(providerInfo['registration_endpoint'], application_type='web')
+        requestArgs = dict(
+                client_id=params['client_id'],
+                response_type='code', # 'code id_token token',
+                state=rndstr(), nonce=rndstr(),
+                scope=['openid', 'profile'],
+                redirect_uri=params['callback_url'],
+        )
+        authReq = client.construct_AuthorizationRequest(request_args=requestArgs)
+        #loginUrl = authReq.request(client.authorization_endpoint)
+        loginUrl = authReq.request(params['provider_url'])
+        print('***', loginUrl)
+        request.response.redirect(loginUrl, trusted=True)
+
+    def callback(self, request):
+        print('*** callback', self, request.form)
+        code = request.form['code']
 
 
 @register('auth', Root)
@@ -70,11 +93,11 @@ def login(context, request):
     return DefaultView(context, request)
 
 @register('callback', Authenticator)
-def login(context, request):
-    print('*** callback', context, request['PATH_INFO'], request.getTraversalStack())
+def callback(context, request):
+    context.callback(request)
     return DefaultView(context, request)
 
 @register('logout', Authenticator)
-def login(context, request):
+def logout(context, request):
     print('*** logout', context, request['PATH_INFO'], request.getTraversalStack())
     return DefaultView(context, request)

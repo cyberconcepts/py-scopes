@@ -20,5 +20,7 @@ dbschema = getenv('DBSCHEMA', 'demo')
 
 # authentication settings
 oidc_params = dict(
-    clientid=getenv('OIDC_CLIENTID', '311613119816392525')
+    provider_url=getenv('OIDC_PROVIDER_URL', 'https://a1.cy7.de/oauth/v2/authorize'),
+    client_id=getenv('OIDC_CLIENT_ID', '311613119816392525'),
+    callback_url=getenv('OIDC_CALLBACK_URL', 'https://demo.cy7.de/auth/callback'),
 )

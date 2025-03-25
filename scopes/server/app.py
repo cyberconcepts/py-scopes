@@ -1,5 +1,7 @@
 # scopes.server.app
 
+from zope.i18n.interfaces import IUserPreferredCharsets
+from zope.interface import implementer
 from zope.publisher.base import DefaultPublication
 from zope.publisher.browser import BrowserRequest
 from zope.publisher.interfaces import NotFound
@@ -11,12 +13,19 @@ import scopes.storage.concept # register container classes
 from scopes.storage.folder import Root
 
 
+@implementer(IUserPreferredCharsets)
+class Request(BrowserRequest):
+    def getPreferredCharsets(self):
+        return ['UTF-8']
+
+
 def zope_app_factory(config):
     storageFactory = config.StorageFactory(config)
     def zope_app(environ, start_response):
         storage = storageFactory(config.dbschema)
         appRoot = Root(storage)
-        request = BrowserRequest(environ['wsgi.input'], environ)
+        #request = BrowserRequest(environ['wsgi.input'], environ)
+        request = Request(environ['wsgi.input'], environ)
         request.setPublication(Publication(appRoot))
         request = publish(request, True)
         response = request.response
