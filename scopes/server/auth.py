@@ -1,8 +1,10 @@
 # scopes.server.auth
 
-from oic import oic, rndstr
+from email.utils import formatdate
+import json
+from oic import oic, rndstr, unreserved
 from oic.oic.message import AuthorizationResponse
-
+from time import time
 from zope.authentication.interfaces import IAuthentication
 from zope.interface import implementer
 from zope.publisher.interfaces import Unauthorized
@@ -53,48 +55,79 @@ class Authenticator(DummyFolder):
 
     prefix = 'auth'
 
+    def __init__(self, request):
+        self.request = request
+        self.params = config.oidc_params
+
     def authenticate(request):
         return None
 
-    def login(self, request):
-        params = config.oidc_params
-        print('*** login', self, request.getTraversalStack(), request['PATH_INFO'])
-        #print('***', dir(request))
+    def login(self):
+        req = self.request
+        print('*** login', self, req.getTraversalStack(), req['PATH_INFO'])
+        #print('***', dir(req))
         client = oic.Client()
         #providerInfo = client.provider_config(params['provider_url'])
         #print('***', providerInfo)
-        #client.register(providerInfo['registration_endpoint'], application_type='web')
-        requestArgs = dict(
-                client_id=params['client_id'],
+        state = rndstr()
+        nonce = rndstr()
+        args = dict(
+                client_id=self.params['client_id'],
                 response_type='code', # 'code id_token token',
-                state=rndstr(), nonce=rndstr(),
+                state=state, nonce=nonce,
                 scope=['openid', 'profile'],
-                redirect_uri=params['callback_url'],
+                redirect_uri=self.params['callback_url'],
         )
-        authReq = client.construct_AuthorizationRequest(request_args=requestArgs)
-        #loginUrl = authReq.request(client.authorization_endpoint)
-        loginUrl = authReq.request(params['provider_url'])
+        addArgs, codeVerifyer = client.add_code_challenge()
+        args.update(addArgs)
+        self.storeSession(dict(state=state, nonce=nonce, codeVerifyer=codeVerifyer))
+        authReq = client.construct_AuthorizationRequest(request_args=args)
+        loginUrl = authReq.request(self.params['auth_url'])
         print('***', loginUrl)
-        request.response.redirect(loginUrl, trusted=True)
+        req.response.redirect(loginUrl, trusted=True)
 
-    def callback(self, request):
-        print('*** callback', self, request.form)
-        code = request.form['code']
+    def callback(self):
+        req = self.request
+        print('*** callback', self, req.form)
+        data = self.loadSession()
+        code = req.form['code']
+        client = oic.Client()
+        print('***', data, code, client)
+
+    def storeSession(self, data):
+        options = {}
+        lifetime = int(self.params['cookie_lifetime'])
+        options['expires'] = formatdate(time() + lifetime, localtime=False, usegmt=True)
+        options['max-age'] = lifetime
+        domain = self.params['cookie_domain']
+        if domain:
+            options['domain'] = domain
+        #options['httponly'] = True
+        name = self.params['cookie_name']
+        value = json.dumps(data)
+        self.request.response.setCookie(name, value, **options)
+
+    def loadSession(self):
+        cookie = self.request.getCookies().get(self.params['cookie_name'])
+        if cookie is None:
+            raise ValueError('Missing authentication cookie')
+        data = json.loads(cookie)
+        return data
 
 
 @register('auth', Root)
 def authView(context, request):
     print('*** auth', context, request['PATH_INFO'])
-    return Authenticator()
+    return Authenticator(request)
 
 @register('login', Authenticator)
 def login(context, request):
-    context.login(request)
+    context.login()
     return DefaultView(context, request)
 
 @register('callback', Authenticator)
 def callback(context, request):
-    context.callback(request)
+    context.callback()
     return DefaultView(context, request)
 
 @register('logout', Authenticator)
