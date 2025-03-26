@@ -24,10 +24,12 @@ oidc_provider = 'https://a1.cy7.de'
 oidc_client_id = getenv('OIDC_CLIENT_ID', '311613119816392525')
 oidc_params = dict(
     auth_url=getenv('OIDC_PROVIDER_URL', oidc_provider + '/oauth/v2/authorize'),
+    token_url=getenv('OIDC_TOKEN_URL', oidc_provider + '/oauth/v2/token'),
+    userinfo_url=getenv('OIDC_USERINFO_URL', oidc_provider + '/oidc/v1/userinfo'),
     callback_url=getenv('OIDC_CALLBACK_URL', base_url + '/auth/callback'),
     client_id = oidc_client_id,
     cookie_name=getenv('OIDC_COOKIE_NAME', 'oidc_' + oidc_client_id),
-    cookie_domain=getenv('OIDC_COOKIE_DOMAIN', 'cy7.de'),
+    cookie_domain=getenv('OIDC_COOKIE_DOMAIN', None),
     cookie_lifetime=getenv('OIDC_COOKIE_LIFETIME', '86400'),
 )
 

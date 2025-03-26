@@ -4,6 +4,7 @@ from email.utils import formatdate
 import json
 from oic import oic, rndstr, unreserved
 from oic.oic.message import AuthorizationResponse
+import requests
 from time import time
 from zope.authentication.interfaces import IAuthentication
 from zope.interface import implementer
@@ -67,7 +68,7 @@ class Authenticator(DummyFolder):
         print('*** login', self, req.getTraversalStack(), req['PATH_INFO'])
         #print('***', dir(req))
         client = oic.Client()
-        #providerInfo = client.provider_config(params['provider_url'])
+        #providerInfo = client.provider_config(config.oidc_provider)
         #print('***', providerInfo)
         state = rndstr()
         nonce = rndstr()
@@ -78,9 +79,10 @@ class Authenticator(DummyFolder):
                 scope=['openid', 'profile'],
                 redirect_uri=self.params['callback_url'],
         )
-        addArgs, codeVerifyer = client.add_code_challenge()
+        addArgs, codeVerifier = client.add_code_challenge()
+        print('***', addArgs, codeVerifier)
         args.update(addArgs)
-        self.storeSession(dict(state=state, nonce=nonce, codeVerifyer=codeVerifyer))
+        self.storeSession(dict(state=state, nonce=nonce, code_verifier=codeVerifier))
         authReq = client.construct_AuthorizationRequest(request_args=args)
         loginUrl = authReq.request(self.params['auth_url'])
         print('***', loginUrl)
@@ -91,8 +93,22 @@ class Authenticator(DummyFolder):
         print('*** callback', self, req.form)
         data = self.loadSession()
         code = req.form['code']
-        client = oic.Client()
-        print('***', data, code, client)
+        print('***', data, code)
+        # !check state: req.form['state'] == data['state']
+        args = dict(
+                grant_type='authorization_code',
+                code=code,
+                redirect_uri=self.params['callback_url'],
+                client_id=self.params['client_id'],
+                code_verifier=data['code_verifier']
+        )
+        # !set header: 'Content-Type: application/x-www-form-urlencoded'
+        tokenResponse = requests.post(self.params['token_url'], data=args)
+        tdata =  tokenResponse.json()
+        print('***', tdata)
+        headers = dict(Authorization='Bearer ' + tdata['access_token'])
+        userInfo = requests.get(self.params['userinfo_url'], headers=headers)
+        print('***', userInfo.json())
 
     def storeSession(self, data):
         options = {}
