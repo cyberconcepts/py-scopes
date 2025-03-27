@@ -2,16 +2,18 @@
 
 from email.utils import formatdate
 import json
-from oic import oic, rndstr, unreserved
-from oic.oic.message import AuthorizationResponse
+#from oic import oic, rndstr, unreserved
+#from oic.oic.message import AuthorizationResponse
 import requests
 from time import time
+from urllib.parse import urlencode
 from zope.authentication.interfaces import IAuthentication
 from zope.interface import implementer
 from zope.publisher.interfaces import Unauthorized
 
 from scopes.server.browser import DefaultView, register
 from scopes.storage.folder import DummyFolder, Root
+from scopes import util
 
 import config
 
@@ -67,24 +69,28 @@ class Authenticator(DummyFolder):
         req = self.request
         print('*** login', self, req.getTraversalStack(), req['PATH_INFO'])
         #print('***', dir(req))
-        client = oic.Client()
+        #client = oic.Client()
         #providerInfo = client.provider_config(config.oidc_provider)
         #print('***', providerInfo)
-        state = rndstr()
-        nonce = rndstr()
+        state = util.rndstr()
+        nonce = util.rndstr()
+        codeVerifier = util.rndstr2()
+        codeChallenge = util.hashS256(codeVerifier)
         args = dict(
                 client_id=self.params['client_id'],
                 response_type='code', # 'code id_token token',
                 state=state, nonce=nonce,
-                scope=['openid', 'profile'],
+                code_challenge=codeChallenge, code_challenge_method='S256',
+                scope='openid profile email',
                 redirect_uri=self.params['callback_url'],
         )
-        addArgs, codeVerifier = client.add_code_challenge()
-        print('***', addArgs, codeVerifier)
-        args.update(addArgs)
+        #addArgs, codeVerifier = client.add_code_challenge()
+        #print('***', addArgs, codeVerifier)
+        #args.update(addArgs)
         self.storeSession(dict(state=state, nonce=nonce, code_verifier=codeVerifier))
-        authReq = client.construct_AuthorizationRequest(request_args=args)
-        loginUrl = authReq.request(self.params['auth_url'])
+        loginUrl = '?'.join((self.params['auth_url'], urlencode(args)))
+        #authReq = client.construct_AuthorizationRequest(request_args=args)
+        #loginUrl = authReq.request(self.params['auth_url'])
         print('***', loginUrl)
         req.response.redirect(loginUrl, trusted=True)
 
@@ -109,6 +115,11 @@ class Authenticator(DummyFolder):
         headers = dict(Authorization='Bearer ' + tdata['access_token'])
         userInfo = requests.get(self.params['userinfo_url'], headers=headers)
         print('***', userInfo.json())
+        #self.storeSession(...)
+        #self.req.response.redirect(...)
+
+    def logout(self):
+        pass
 
     def storeSession(self, data):
         options = {}
