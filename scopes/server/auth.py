@@ -81,7 +81,7 @@ class Authenticator(DummyFolder):
                 response_type='code', # 'code id_token token',
                 state=state, nonce=nonce,
                 code_challenge=codeChallenge, code_challenge_method='S256',
-                scope='openid profile email',
+                scope='openid profile email urn:zitadel:iam:user:resourceowner',
                 redirect_uri=self.params['callback_url'],
         )
         #addArgs, codeVerifier = client.add_code_challenge()

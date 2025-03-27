@@ -23,6 +23,7 @@ postgres = [
 ]
 app = [
 	"python-dotenv", 
+	"waitress",
 	"zope.authentication",
 	"zope.interface",
 	"zope.publisher", 
