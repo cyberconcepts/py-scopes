@@ -29,6 +29,7 @@ app = [
 	"zope.publisher", 
 	"zope.traversing",
 ]
+auth = ["pyjwt[crypto]", "cryptography"]
 test = ["zope.testrunner"]
 #test = ["pytest"]
 

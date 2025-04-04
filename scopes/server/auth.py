@@ -1,9 +1,8 @@
 # scopes.server.auth
 
+from cryptography.fernet import Fernet
 from email.utils import formatdate
 import json
-#from oic import oic, rndstr, unreserved
-#from oic.oic.message import AuthorizationResponse
 import requests
 from time import time
 from urllib.parse import urlencode
@@ -61,17 +60,23 @@ class Authenticator(DummyFolder):
     def __init__(self, request):
         self.request = request
         self.params = config.oidc_params
+        self.reqUrl = config.base_url
+        self.setCrypt(self.params['cookie_crypt'])
+
+    def setReqUrl(self, base, path):
+        self.reqUrl = '/'.join((base, path))
+
+    def setCrypt(self, key):
+        self.cookieCrypt = key and Fernet(key.encode('ASCII')) or None
 
     def authenticate(request):
+        ''' return user data or None '''
         return None
 
     def login(self):
         req = self.request
         print('*** login', self, req.getTraversalStack(), req['PATH_INFO'])
         #print('***', dir(req))
-        #client = oic.Client()
-        #providerInfo = client.provider_config(config.oidc_provider)
-        #print('***', providerInfo)
         state = util.rndstr()
         nonce = util.rndstr()
         codeVerifier = util.rndstr2()
@@ -83,40 +88,40 @@ class Authenticator(DummyFolder):
                 code_challenge=codeChallenge, code_challenge_method='S256',
                 scope='openid profile email urn:zitadel:iam:user:resourceowner',
                 redirect_uri=self.params['callback_url'],
+                request_uri=self.reqUrl,
         )
-        #addArgs, codeVerifier = client.add_code_challenge()
-        #print('***', addArgs, codeVerifier)
-        #args.update(addArgs)
         self.storeSession(dict(state=state, nonce=nonce, code_verifier=codeVerifier))
         loginUrl = '?'.join((self.params['auth_url'], urlencode(args)))
-        #authReq = client.construct_AuthorizationRequest(request_args=args)
-        #loginUrl = authReq.request(self.params['auth_url'])
         print('***', loginUrl)
         req.response.redirect(loginUrl, trusted=True)
 
     def callback(self):
         req = self.request
         print('*** callback', self, req.form)
-        data = self.loadSession()
+        sdata = self.loadSession()
         code = req.form['code']
-        print('***', data, code)
-        # !check state: req.form['state'] == data['state']
+        print('*** session data', sdata, code)
+        # !check state: req.form['state'] == sdata['state']
         args = dict(
                 grant_type='authorization_code',
                 code=code,
                 redirect_uri=self.params['callback_url'],
                 client_id=self.params['client_id'],
-                code_verifier=data['code_verifier']
+                code_verifier=sdata['code_verifier']
         )
         # !set header: 'Content-Type: application/x-www-form-urlencoded'
         tokenResponse = requests.post(self.params['token_url'], data=args)
         tdata =  tokenResponse.json()
-        print('***', tdata)
+        print('*** token response', tdata)
         headers = dict(Authorization='Bearer ' + tdata['access_token'])
         userInfo = requests.get(self.params['userinfo_url'], headers=headers)
         print('***', userInfo.json())
-        #self.storeSession(...)
-        #self.req.response.redirect(...)
+        # get relevant data from userInfo
+        # set up session data for authenticate()
+        ndata = dict(
+        )
+        self.storeSession(ndata)
+        req.response.redirect(self.reqUrl, trusted=True)
 
     def logout(self):
         pass
@@ -132,12 +137,16 @@ class Authenticator(DummyFolder):
         #options['httponly'] = True
         name = self.params['cookie_name']
         value = json.dumps(data)
+        if self.cookieCrypt:
+            value = self.cookieCrypt.encrypt(value.encode('ASCII')).decode('ASCII')
         self.request.response.setCookie(name, value, **options)
 
     def loadSession(self):
         cookie = self.request.getCookies().get(self.params['cookie_name'])
         if cookie is None:
             raise ValueError('Missing authentication cookie')
+        if self.cookieCrypt:
+            cookie = self.cookieCrypt.decrypt(cookie).decode('ASCII')
         data = json.loads(cookie)
         return data
 

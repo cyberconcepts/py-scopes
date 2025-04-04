@@ -31,5 +31,6 @@ oidc_params = dict(
     cookie_name=getenv('OIDC_COOKIE_NAME', 'oidc_' + oidc_client_id),
     cookie_domain=getenv('OIDC_COOKIE_DOMAIN', None),
     cookie_lifetime=getenv('OIDC_COOKIE_LIFETIME', '86400'),
+    cookie_crypt=getenv('OIDC_COOKIE_CRYPT', None)
 )
 
