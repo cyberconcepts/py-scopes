@@ -55,6 +55,9 @@ class DefaultView:
                 result['target'] = target.asDict()
                 if IContainer.providedBy(target):
                     result['target']['items'] = [v.asDict() for v in target.values()]
+        prc = self.request.principal
+        if prc is not None:
+            result['principal'] = prc.asDict()
         return result
 
     def render(self, result):

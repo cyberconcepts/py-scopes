@@ -36,6 +36,12 @@ def zope_app_factory(config):
 
 class Publication(DefaultPublication):
 
+    def beforeTraversal(self, request):
+        super(Publication, self).beforeTraversal(request)
+        from scopes.server.auth import authentication
+        prc = authentication.authenticate(request)
+        request.setPrincipal(prc)
+
     def traverseName(self, request, ob, name):
         next = getView(request, ob, name)
         if next is not None:

@@ -6,7 +6,7 @@ import json
 import requests
 from time import time
 from urllib.parse import urlencode
-from zope.authentication.interfaces import IAuthentication
+from zope.authentication.interfaces import IAuthentication, IPrincipal
 from zope.interface import implementer
 from zope.publisher.interfaces import Unauthorized
 
@@ -17,11 +17,6 @@ from scopes import util
 import config
 
 
-def authenticate(request):
-    #print('*** authenticate')
-    return None
-
-
 @implementer(IAuthentication)
 class OidcAuthentication:
 
@@ -29,8 +24,8 @@ class OidcAuthentication:
         self.baseAuth = baseAuth
 
     def authenticate(self, request):
-        prc = authenticate(request)
-        # prc = Authenticator().authenticate(request)
+        auth = Authenticator(request)
+        prc = auth.authenticate()
         if prc is None and self.baseAuth is not None:
             prc = self.baseAuth.authenticate(request)
         return prc
@@ -52,6 +47,21 @@ class OidcAuthentication:
 
 JwtAuthentication = OidcAuthentication  # old name - still used?
 
+authentication = OidcAuthentication(None)
+
+
+@implementer(IPrincipal)
+class Principal:
+
+    def __init__(self, id, data):
+        self.id = id
+        self.data = data
+
+    def asDict(self):
+        data = self.data.copy()
+        data['id'] = self.id
+        return data
+
 
 class Authenticator(DummyFolder):
 
@@ -61,16 +71,21 @@ class Authenticator(DummyFolder):
         self.request = request
         self.params = config.oidc_params
         self.reqUrl = config.base_url
-        self.setCrypt(self.params['cookie_crypt'])
+        self.setCrypt(self.params.get('cookie_crypt'))
 
     def setReqUrl(self, base, path):
         self.reqUrl = '/'.join((base, path))
 
     def setCrypt(self, key):
-        self.cookieCrypt = key and Fernet(key.encode('ASCII')) or None
+        self.cookieCrypt = key and Fernet(key) or None
 
-    def authenticate(request):
-        ''' return user data or None '''
+    def authenticate(self):
+        ''' return  principal or None'''
+        data = self.loadSession()
+        print('*** authenticate', data)
+        if data and 'userid' in data:
+            id = data.pop('userid')
+            return Principal(id, data)
         return None
 
     def login(self):
@@ -115,10 +130,13 @@ class Authenticator(DummyFolder):
         print('*** token response', tdata)
         headers = dict(Authorization='Bearer ' + tdata['access_token'])
         userInfo = requests.get(self.params['userinfo_url'], headers=headers)
-        print('***', userInfo.json())
-        # get relevant data from userInfo
-        # set up session data for authenticate()
+        userData = userInfo.json()
+        print('*** user data', userData)
         ndata = dict(
+                userid=userData['preferred_username'],
+                name=userData['name'],
+                email=userData['email'],
+                access_token=tdata['access_token'],
         )
         self.storeSession(ndata)
         req.response.redirect(self.reqUrl, trusted=True)
@@ -127,7 +145,7 @@ class Authenticator(DummyFolder):
         pass
 
     def storeSession(self, data):
-        options = {}
+        options = dict(path='/')
         lifetime = int(self.params['cookie_lifetime'])
         options['expires'] = formatdate(time() + lifetime, localtime=False, usegmt=True)
         options['max-age'] = lifetime
@@ -137,16 +155,20 @@ class Authenticator(DummyFolder):
         #options['httponly'] = True
         name = self.params['cookie_name']
         value = json.dumps(data)
+        print('*** storeSession', name, value, options)
         if self.cookieCrypt:
-            value = self.cookieCrypt.encrypt(value.encode('ASCII')).decode('ASCII')
+            value = self.cookieCrypt.encrypt(value.encode('UTF-8')).decode('ASCII')
         self.request.response.setCookie(name, value, **options)
 
     def loadSession(self):
         cookie = self.request.getCookies().get(self.params['cookie_name'])
         if cookie is None:
-            raise ValueError('Missing authentication cookie')
+            return {}
+            #raise ValueError('Missing authentication cookie')
         if self.cookieCrypt:
-            cookie = self.cookieCrypt.decrypt(cookie).decode('ASCII')
+            cookie = self.cookieCrypt.decrypt(cookie)
+        print('*** loadSession', self.params['cookie_name'], cookie)
+        # !error check: return None - or raise error?
         data = json.loads(cookie)
         return data
 
