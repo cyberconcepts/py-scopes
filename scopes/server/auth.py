@@ -41,6 +41,7 @@ class OidcAuthentication:
     def unauthorized(self, id, request):
         if self.baseAuth is not None:
             return self.baseAuth.unauthorized(id, request)
+        Authenticator(request).login()
 
     def logout(self, request):
         print('*** OidcAuthentication: logout')
