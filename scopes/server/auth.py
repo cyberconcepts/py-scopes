@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 from zope.authentication.interfaces import IAuthentication, IPrincipal
 from zope.interface import implementer
 from zope.publisher.interfaces import Unauthorized
+from zope.security.interfaces import IGroupAwarePrincipal
 
 from scopes.server.browser import DefaultView, register
 from scopes.storage.folder import DummyFolder, Root
@@ -51,12 +52,20 @@ JwtAuthentication = OidcAuthentication  # old name - still used?
 authentication = OidcAuthentication(None)
 
 
-@implementer(IPrincipal)
+@implementer(IGroupAwarePrincipal)
 class Principal:
 
     def __init__(self, id, data):
         self.id = id
         self.data = data
+
+    @property
+    def title(self):
+        return self.data['name']
+
+    @property
+    def groups(self):
+        return self.data.get('groups', [])
 
     def asDict(self):
         data = self.data.copy()
@@ -85,7 +94,7 @@ class Authenticator(DummyFolder):
         data = self.loadSession()
         print('*** authenticate', data)
         if data and 'userid' in data:
-            id = data.pop('userid')
+            id = self.params['principal_prefix'] + data.pop('userid')
             return Principal(id, data)
         return None
 
@@ -133,10 +142,14 @@ class Authenticator(DummyFolder):
         userInfo = requests.get(self.params['userinfo_url'], headers=headers)
         userData = userInfo.json()
         print('*** user data', userData)
+        groupInfo = userData.get('urn:zitadel:iam:org:project:roles', {})
+        print('*** group info', groupInfo)
+        groupInfo = userData.get('urn:zitadel:iam:org:project:roles')
         ndata = dict(
                 userid=userData['preferred_username'],
                 name=userData['name'],
                 email=userData['email'],
+                groups=groupInfo.keys(),
                 access_token=tdata['access_token'],
         )
         self.storeSession(ndata)
