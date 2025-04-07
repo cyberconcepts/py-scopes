@@ -55,6 +55,8 @@ authentication = OidcAuthentication(None)
 @implementer(IGroupAwarePrincipal)
 class Principal:
 
+    group_prefix = 'gloops.'
+
     def __init__(self, id, data):
         self.id = id
         self.data = data
@@ -65,7 +67,9 @@ class Principal:
 
     @property
     def groups(self):
-        return self.data.get('groups', [])
+        groups = [self.group_prefix + g for g in self.data.get('groups', [])]
+        print('*** Principal.groups', groups)
+        return groups
 
     def asDict(self):
         data = self.data.copy()
@@ -94,7 +98,7 @@ class Authenticator(DummyFolder):
         data = self.loadSession()
         print('*** authenticate', data)
         if data and 'userid' in data:
-            id = self.params['principal_prefix'] + data.pop('userid')
+            id = self.params.get('principal_prefix', '') + data.pop('userid')
             return Principal(id, data)
         return None
 
@@ -149,7 +153,7 @@ class Authenticator(DummyFolder):
                 userid=userData['preferred_username'],
                 name=userData['name'],
                 email=userData['email'],
-                groups=groupInfo.keys(),
+                groups=list(groupInfo.keys()),
                 access_token=tdata['access_token'],
         )
         self.storeSession(ndata)
