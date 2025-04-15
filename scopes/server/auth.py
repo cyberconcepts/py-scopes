@@ -46,6 +46,7 @@ class OidcAuthentication:
 
     def logout(self, request):
         print('*** OidcAuthentication: logout')
+        Authenticator(request).logout()
 
 JwtAuthentication = OidcAuthentication  # old name - still used?
 
