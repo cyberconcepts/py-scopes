@@ -3,6 +3,7 @@
 from cryptography.fernet import Fernet
 from email.utils import formatdate
 import json
+import logging
 import requests
 from time import time
 from urllib.parse import urlencode
@@ -16,6 +17,8 @@ from scopes.storage.folder import DummyFolder, Root
 from scopes import util
 
 import config
+
+logger = logging.getLogger('server.auth')
 
 
 @implementer(IAuthentication)
@@ -97,7 +100,7 @@ class Authenticator(DummyFolder):
     def authenticate(self):
         ''' return  principal or None'''
         data = self.loadSession()
-        print('*** authenticate', data)
+        logger.debug('authenticate: %s', data)
         if data and 'userid' in data:
             id = self.params.get('principal_prefix', '') + data.pop('userid')
             return Principal(id, data)
@@ -105,7 +108,7 @@ class Authenticator(DummyFolder):
 
     def login(self):
         req = self.request
-        print('*** login', self, req.getTraversalStack(), req['PATH_INFO'])
+        logger.debug('login: %s %s %s', self, req.getTraversalStack(), req['PATH_INFO'])
         #print('***', dir(req))
         state = util.rndstr()
         nonce = util.rndstr()
@@ -127,10 +130,9 @@ class Authenticator(DummyFolder):
 
     def callback(self):
         req = self.request
-        print('*** callback', self, req.form)
+        logger.debug('callback: %s %s', self, req.form)
         sdata = self.loadSession()
         code = req.form['code']
-        print('*** session data', sdata, code)
         # !check state: req.form['state'] == sdata['state']
         args = dict(
                 grant_type='authorization_code',
@@ -142,13 +144,13 @@ class Authenticator(DummyFolder):
         # !set header: 'Content-Type: application/x-www-form-urlencoded'
         tokenResponse = requests.post(self.params['token_url'], data=args)
         tdata =  tokenResponse.json()
-        print('*** token response', tdata)
+        #print('*** token response', tdata)
         headers = dict(Authorization='Bearer ' + tdata['access_token'])
         userInfo = requests.get(self.params['userinfo_url'], headers=headers)
         userData = userInfo.json()
-        print('*** user data', userData)
+        #print('*** user data', userData)
         groupInfo = userData.get('urn:zitadel:iam:org:project:roles', {})
-        print('*** group info', groupInfo)
+        #print('*** group info', groupInfo)
         groupInfo = userData.get('urn:zitadel:iam:org:project:roles')
         ndata = dict(
                 userid=userData['preferred_username'],
@@ -164,17 +166,19 @@ class Authenticator(DummyFolder):
         pass
 
     def storeSession(self, data):
-        options = dict(path='/')
         lifetime = int(self.params['cookie_lifetime'])
-        options['expires'] = formatdate(time() + lifetime, localtime=False, usegmt=True)
+        options = dict(
+                path='/',
+                expires=formatdate(time() + lifetime, localtime=False, usegmt=True),
+                httponly=True,
+        )
         options['max-age'] = lifetime
         domain = self.params['cookie_domain']
         if domain:
             options['domain'] = domain
-        #options['httponly'] = True
         name = self.params['cookie_name']
         value = json.dumps(data)
-        print('*** storeSession', name, value, options)
+        #print('*** storeSession', name, value, options)
         if self.cookieCrypt:
             value = self.cookieCrypt.encrypt(value.encode('UTF-8')).decode('ASCII')
         self.request.response.setCookie(name, value, **options)
@@ -186,7 +190,7 @@ class Authenticator(DummyFolder):
             #raise ValueError('Missing authentication cookie')
         if self.cookieCrypt:
             cookie = self.cookieCrypt.decrypt(cookie)
-        print('*** loadSession', self.params['cookie_name'], cookie)
+        #print('*** loadSession', self.params['cookie_name'], cookie)
         # !error check: return None - or raise error?
         data = json.loads(cookie)
         return data

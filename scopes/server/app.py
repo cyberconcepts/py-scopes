@@ -13,9 +13,6 @@ from scopes.server.browser import getView
 import scopes.storage.concept # register container classes
 from scopes.storage.folder import Root
 
-logging.basicConfig(filename='log/scopes.log')
-logger = logging.getLogger()
-
 
 @implementer(IUserPreferredCharsets)
 class Request(BrowserRequest):
@@ -28,7 +25,6 @@ def zope_app_factory(config):
     def zope_app(environ, start_response):
         storage = storageFactory(config.dbschema)
         appRoot = Root(storage)
-        #request = BrowserRequest(environ['wsgi.input'], environ)
         request = Request(environ['wsgi.input'], environ)
         request.setPublication(Publication(appRoot))
         request = publish(request, True)

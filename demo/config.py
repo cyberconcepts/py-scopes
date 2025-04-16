@@ -1,10 +1,18 @@
 # py-scopes/demo/config.py
 
 from dotenv import load_dotenv
+import logging
 from os import getenv
 from scopes.server.app import zope_app_factory
 
 load_dotenv()
+
+log_file = 'log/scopes.log'
+log_level = logging.DEBUG
+log_format = '%(asctime)s %(levelname)s %(name)s %(message)s'
+log_dateformat = '%Y-%m-%dT%H:%M:%S'
+logging.basicConfig(filename=log_file, level=log_level, 
+                    format=log_format, datefmt=log_dateformat)
 
 server_port = getenv('SERVER_PORT', '8099')
 base_url = getenv('BASE_URL', 'https://demo.cy7.de')
