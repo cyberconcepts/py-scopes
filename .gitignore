@@ -2,6 +2,7 @@
 *.pyo
 *.egg-info
 *.project
+*.log
 *.swp
 *.pydevproject
 *.sublime-project

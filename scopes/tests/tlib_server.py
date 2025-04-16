@@ -3,6 +3,7 @@
 """Test implementation for the `scopes.server` package."""
 
 import json
+import logging
 from zope.publisher.browser import TestRequest
 from zope.publisher.publish import publish
 
@@ -19,6 +20,8 @@ def publishRequest(config, storage, path):
 
 
 def test_app(self, config):
+    logger = logging.getLogger('tlib_server')
+    logger.info('test_app')
     storage = config.storageFactory(config.dbschema)
     response = publishRequest(config, storage, '/top')
     result = json.loads(response.consumeBody())

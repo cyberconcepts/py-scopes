@@ -1,5 +1,6 @@
 # scopes.server.app
 
+import logging
 from zope.i18n.interfaces import IUserPreferredCharsets
 from zope.interface import implementer
 from zope.publisher.base import DefaultPublication
@@ -11,6 +12,9 @@ from scopes.interfaces import ITraversable, IView
 from scopes.server.browser import getView
 import scopes.storage.concept # register container classes
 from scopes.storage.folder import Root
+
+logging.basicConfig(filename='log/scopes.log')
+logger = logging.getLogger()
 
 
 @implementer(IUserPreferredCharsets)
