@@ -38,7 +38,7 @@ class Publication(DefaultPublication):
 
     def beforeTraversal(self, request):
         super(Publication, self).beforeTraversal(request)
-        from scopes.server.auth import authentication
+        from scopes.server.auth.oidc import authentication
         prc = authentication.authenticate(request)
         request.setPrincipal(prc)
 
