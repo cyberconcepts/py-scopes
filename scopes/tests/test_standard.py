@@ -6,7 +6,7 @@ import os, sys
 sys.path = [os.path.dirname(__file__)] + sys.path
 
 import unittest
-from scopes.tests import tlib_server, tlib_storage
+from scopes.tests import tlib_web, tlib_storage
 
 from scopes.storage.common import StorageFactory
 import config
@@ -30,8 +30,8 @@ class Test(unittest.TestCase):
     def test_004_topic(self):
         tlib_storage.test_topic(self, config)
 
-    def test_013_server(self):
-        tlib_server.test_app(self, config)
+    def test_013_web(self):
+        tlib_web.test_app(self, config)
 
 
 def suite():

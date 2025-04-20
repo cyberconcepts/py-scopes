@@ -3,7 +3,7 @@
 from dotenv import load_dotenv
 import logging
 from os import getenv
-from scopes.server.app import zope_app_factory
+from scopes.web.app import zope_app_factory
 
 load_dotenv()
 

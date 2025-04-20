@@ -3,7 +3,7 @@
 # use: `python -i shell.py`
 
 import config
-from scopes.server import auth
+from scopes.web.auth import oidc
 from scopes.storage.folder import Root
 from scopes.storage import topic
 

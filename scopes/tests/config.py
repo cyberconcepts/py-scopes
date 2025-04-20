@@ -3,7 +3,7 @@
 import logging
 from os import getenv
 
-#from scopes.server.app import demo_app, zope_app
+#from scopes.web.app import demo_app, zope_app
 
 log_file = 'scopes/tests/log/scopes-test.log'
 log_level = logging.INFO

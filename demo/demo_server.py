@@ -1,6 +1,6 @@
 # py-scopes/demo/demo_server.py
 
-from scopes.server import auth
+from scopes.web.auth import oidc
 from scopes.storage import topic
 
 import logging

@@ -1,13 +1,13 @@
-# tests/tlib_server.py
+# tests/tlib_web.py
 
-"""Test implementation for the `scopes.server` package."""
+"""Test implementation for the `scopes.web` package."""
 
 import json
 import logging
 from zope.publisher.browser import TestRequest
 from zope.publisher.publish import publish
 
-from scopes.server.app import Publication
+from scopes.web.app import Publication
 from scopes.storage.folder import Root
 
 
@@ -20,7 +20,7 @@ def publishRequest(config, storage, path):
 
 
 def test_app(self, config):
-    logger = logging.getLogger('tlib_server')
+    logger = logging.getLogger('tlib_web')
     logger.info('test_app')
     storage = config.storageFactory(config.dbschema)
     response = publishRequest(config, storage, '/top')

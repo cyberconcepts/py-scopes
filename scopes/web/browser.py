@@ -1,11 +1,11 @@
-# scopes.server.browser
+# scopes.web.browser
 
 import json
 import logging
 from zope.interface import implementer
 from scopes.interfaces import IContainer, IReference, IView
 
-logger = logging.getLogger('server.browser')
+logger = logging.getLogger('web.browser')
 
 views = {} # registry for all views: {name: {prefix: viewClass, ...}, ...}
 

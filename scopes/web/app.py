@@ -1,4 +1,4 @@
-# scopes.server.app
+# scopes.web.app
 
 import logging
 from zope.i18n.interfaces import IUserPreferredCharsets
@@ -9,7 +9,7 @@ from zope.publisher.interfaces import NotFound
 from zope.publisher.publish import publish
 
 from scopes.interfaces import ITraversable, IView
-from scopes.server.browser import getView
+from scopes.web.browser import getView
 import scopes.storage.concept # register container classes
 from scopes.storage.folder import Root
 
@@ -38,7 +38,7 @@ class Publication(DefaultPublication):
 
     def beforeTraversal(self, request):
         super(Publication, self).beforeTraversal(request)
-        from scopes.server.auth.oidc import authentication
+        from scopes.web.auth.oidc import authentication
         prc = authentication.authenticate(request)
         request.setPrincipal(prc)
 

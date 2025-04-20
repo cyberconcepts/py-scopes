@@ -1,4 +1,4 @@
-# scopes.server.auth
+# scopes.web.auth.uidc
 
 from cryptography.fernet import Fernet
 from email.utils import formatdate
@@ -12,13 +12,13 @@ from zope.interface import implementer
 from zope.publisher.interfaces import Unauthorized
 from zope.security.interfaces import IGroupAwarePrincipal
 
-from scopes.server.browser import DefaultView, register
+from scopes.web.browser import DefaultView, register
 from scopes.storage.folder import DummyFolder, Root
 from scopes import util
 
 import config
 
-logger = logging.getLogger('server.auth')
+logger = logging.getLogger('web.auth.oidc')
 
 
 @implementer(IAuthentication)
