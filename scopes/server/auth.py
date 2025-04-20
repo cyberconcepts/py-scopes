@@ -48,10 +48,7 @@ class OidcAuthentication:
         Authenticator(request).login()
 
     def logout(self, request):
-        print('*** OidcAuthentication: logout')
         Authenticator(request).logout()
-
-JwtAuthentication = OidcAuthentication  # old name - still used?
 
 authentication = OidcAuthentication(None)
 
@@ -72,7 +69,6 @@ class Principal:
     @property
     def groups(self):
         groups = [self.group_prefix + g for g in self.data.get('groups', [])]
-        print('*** Principal.groups', groups)
         return groups
 
     def asDict(self):
@@ -125,7 +121,7 @@ class Authenticator(DummyFolder):
         )
         self.storeSession(dict(state=state, nonce=nonce, code_verifier=codeVerifier))
         loginUrl = '?'.join((self.params['auth_url'], urlencode(args)))
-        print('***', loginUrl)
+        logger.debug('login: URL %s', loginUrl)
         req.response.redirect(loginUrl, trusted=True)
 
     def callback(self):
@@ -163,14 +159,17 @@ class Authenticator(DummyFolder):
         req.response.redirect(self.reqUrl, trusted=True)
 
     def logout(self):
-        pass
+        cname = self.params['cookie_name']
+        logger.debug('logout, cookie: %s', cname)
+        self.request.response.expireCookie(cname, path='/')
+        self.request.response.redirect(config.base_url, trusted=True)
 
     def storeSession(self, data):
         lifetime = int(self.params['cookie_lifetime'])
         options = dict(
                 path='/',
                 expires=formatdate(time() + lifetime, localtime=False, usegmt=True),
-                httponly=True,
+                #httponly=True,
         )
         options['max-age'] = lifetime
         domain = self.params['cookie_domain']
@@ -198,7 +197,6 @@ class Authenticator(DummyFolder):
 
 @register('auth', Root)
 def authView(context, request):
-    print('*** auth', context, request['PATH_INFO'])
     return Authenticator(request)
 
 @register('login', Authenticator)
@@ -213,5 +211,5 @@ def callback(context, request):
 
 @register('logout', Authenticator)
 def logout(context, request):
-    print('*** logout', context, request['PATH_INFO'], request.getTraversalStack())
+    context.logout()
     return DefaultView(context, request)

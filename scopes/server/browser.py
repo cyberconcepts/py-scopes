@@ -1,8 +1,11 @@
 # scopes.server.browser
 
 import json
+import logging
 from zope.interface import implementer
 from scopes.interfaces import IContainer, IReference, IView
+
+logger = logging.getLogger('server.browser')
 
 views = {} # registry for all views: {name: {prefix: viewClass, ...}, ...}
 
@@ -29,6 +32,7 @@ def getView(request, ob, name):
         factory = nameEntry.get('')
     if factory is None:
         return None
+    logger.debug('getView: %s %s', ob, request['PATH_INFO'])
     return factory(ob, request)
 
 
