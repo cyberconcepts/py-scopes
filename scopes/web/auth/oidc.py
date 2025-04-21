@@ -79,13 +79,19 @@ class Principal:
 
 class Authenticator(DummyFolder):
 
-    prefix = 'auth'
+    prefix = 'auth.oidc'
+
+    oidcProviderUris = ['authorization_endpoint', 'token_endpoint', 
+                        'introspection_endpoint', 'userinfo_endpoint',
+                        'revocation_endpoint', 'end_session_endpoint',
+                        'device_authorization_endpoint', 'jwks_uri']
 
     def __init__(self, request):
         self.request = request
         self.params = config.oidc_params
         self.reqUrl = config.base_url
         self.setCrypt(self.params.get('cookie_crypt'))
+        self.loadOidcProviderData()
 
     def setReqUrl(self, base, path):
         self.reqUrl = '/'.join((base, path))
@@ -120,7 +126,8 @@ class Authenticator(DummyFolder):
                 request_uri=self.reqUrl,
         )
         self.storeSession(dict(state=state, nonce=nonce, code_verifier=codeVerifier))
-        loginUrl = '?'.join((self.params['auth_url'], urlencode(args)))
+        authUrl = self.params['op_uris']['authorization_endpoint']
+        loginUrl = '?'.join((authUrl, urlencode(args)))
         logger.debug('login: URL %s', loginUrl)
         req.response.redirect(loginUrl, trusted=True)
 
@@ -138,11 +145,13 @@ class Authenticator(DummyFolder):
                 code_verifier=sdata['code_verifier']
         )
         # !set header: 'Content-Type: application/x-www-form-urlencoded'
-        tokenResponse = requests.post(self.params['token_url'], data=args)
+        tokenUrl = self.params['op_uris']['token_endpoint']
+        tokenResponse = requests.post(tokenUrl, data=args)
         tdata =  tokenResponse.json()
         #print('*** token response', tdata)
         headers = dict(Authorization='Bearer ' + tdata['access_token'])
-        userInfo = requests.get(self.params['userinfo_url'], headers=headers)
+        userInfoUrl = self.params['op_uris']['userinfo_endpoint']
+        userInfo = requests.get(userInfoUrl, headers=headers)
         userData = userInfo.json()
         #print('*** user data', userData)
         groupInfo = userData.get('urn:zitadel:iam:org:project:roles', {})
@@ -193,6 +202,17 @@ class Authenticator(DummyFolder):
         # !error check: return None - or raise error?
         data = json.loads(cookie)
         return data
+
+    def loadOidcProviderData(self, force=False):
+        if config.oidc_provider.startswith('test'):
+            return
+        if force or self.params.get('op_uris') is None:
+            uris = self.params['op_uris'] = {}
+            opData = requests.get(self.params['op_config_url']).json()
+            for key in self.oidcProviderUris:
+                uris[key] = opData[key]
+        if force or self.params.get('op_keys') is None:
+            self.params['op_keys'] = requests.get(uris['jwks_uri']).json()
 
 
 @register('auth', Root)
