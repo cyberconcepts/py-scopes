@@ -2,6 +2,7 @@
 
 import logging
 from os import getenv
+import sys
 
 #from scopes.web.app import demo_app, zope_app
 
@@ -32,8 +33,14 @@ dbuser = None
 dbpassword = None
 dbschema = None
 
+# special testing stuff
+#from scopes.tests import oidc_data # add oidc URIs and keys to dummy_requests data
+from scopes.tests import dummy_requests
+sys.modules['requests'] = dummy_requests
+
+
 # authentication settings
-oidc_provider = 'test://testing'
+oidc_provider = 'test://oidc'
 oidc_client_id = getenv('OIDC_CLIENT_ID', '12345')
 oidc_params = dict(
     op_config_url=oidc_provider + '/.well-known/openid-configuration',

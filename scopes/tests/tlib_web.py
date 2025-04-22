@@ -24,6 +24,7 @@ def test_app(self, config):
     logger.info('test_app')
     storage = config.storageFactory(config.dbschema)
     response = publishRequest(config, storage, '/top')
+    print('***', response.getStatus(), response.getHeaders())
     result = json.loads(response.consumeBody())
     self.assertEqual(result['items'][0]['head']['name'], 'level2-item1')
 

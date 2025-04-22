@@ -110,7 +110,6 @@ class Authenticator(DummyFolder):
 
     def login(self):
         req = self.request
-        logger.debug('login: %s %s %s', self, req.getTraversalStack(), req['PATH_INFO'])
         #print('***', dir(req))
         state = util.rndstr()
         nonce = util.rndstr()
@@ -205,14 +204,14 @@ class Authenticator(DummyFolder):
 
     def loadOidcProviderData(self, force=False):
         if config.oidc_provider.startswith('test'):
-            return
+            pass
         if force or self.params.get('op_uris') is None:
             uris = self.params['op_uris'] = {}
             opData = requests.get(self.params['op_config_url']).json()
             for key in self.oidcProviderUris:
                 uris[key] = opData[key]
         if force or self.params.get('op_keys') is None:
-            self.params['op_keys'] = requests.get(uris['jwks_uri']).json()
+            self.params['op_keys'] = requests.get(uris['jwks_uri']).json()['keys']
 
 
 @register('auth', Root)
