@@ -21,10 +21,13 @@ def publishRequest(config, storage, path):
 
 def test_app(self, config):
     logger = logging.getLogger('tlib_web')
-    logger.info('test_app')
     storage = config.storageFactory(config.dbschema)
     response = publishRequest(config, storage, '/top')
-    print('***', response.getStatus(), response.getHeaders())
+    logger.info('test_app: response %s %s', response.getStatus(), response.getHeaders())
     result = json.loads(response.consumeBody())
     self.assertEqual(result['items'][0]['head']['name'], 'level2-item1')
 
+def test_auth(self, config):
+    from scopes.web.auth import oidc
+    oidc.loadOidcProviderData()
+    self.assertEqual(len(config.oidc_params['op_uris']), 8)

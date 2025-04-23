@@ -81,17 +81,11 @@ class Authenticator(DummyFolder):
 
     prefix = 'auth.oidc'
 
-    oidcProviderUris = ['authorization_endpoint', 'token_endpoint', 
-                        'introspection_endpoint', 'userinfo_endpoint',
-                        'revocation_endpoint', 'end_session_endpoint',
-                        'device_authorization_endpoint', 'jwks_uri']
-
     def __init__(self, request):
         self.request = request
         self.params = config.oidc_params
         self.reqUrl = config.base_url
         self.setCrypt(self.params.get('cookie_crypt'))
-        self.loadOidcProviderData()
 
     def setReqUrl(self, base, path):
         self.reqUrl = '/'.join((base, path))
@@ -109,6 +103,7 @@ class Authenticator(DummyFolder):
         return None
 
     def login(self):
+        loadOidcProviderData()
         req = self.request
         #print('***', dir(req))
         state = util.rndstr()
@@ -202,17 +197,6 @@ class Authenticator(DummyFolder):
         data = json.loads(cookie)
         return data
 
-    def loadOidcProviderData(self, force=False):
-        if config.oidc_provider.startswith('test'):
-            pass
-        if force or self.params.get('op_uris') is None:
-            uris = self.params['op_uris'] = {}
-            opData = requests.get(self.params['op_config_url']).json()
-            for key in self.oidcProviderUris:
-                uris[key] = opData[key]
-        if force or self.params.get('op_keys') is None:
-            self.params['op_keys'] = requests.get(uris['jwks_uri']).json()['keys']
-
 
 @register('auth', Root)
 def authView(context, request):
@@ -232,3 +216,22 @@ def callback(context, request):
 def logout(context, request):
     context.logout()
     return DefaultView(context, request)
+
+
+oidcProviderUris = ['authorization_endpoint', 'token_endpoint', 
+                    'introspection_endpoint', 'userinfo_endpoint',
+                    'revocation_endpoint', 'end_session_endpoint',
+                    'device_authorization_endpoint', 'jwks_uri']
+
+def loadOidcProviderData(force=False):
+    params = config.oidc_params
+    if force or params.get('op_uris') is None:
+        uris = params['op_uris'] = {}
+        opData = requests.get(params['op_config_url']).json()
+        for key in oidcProviderUris:
+            uris[key] = opData[key]
+    if force or params.get('op_keys') is None:
+        params['op_keys'] = requests.get(uris['jwks_uri']).json()['keys']
+
+
+

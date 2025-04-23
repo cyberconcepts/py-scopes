@@ -34,7 +34,7 @@ dbpassword = None
 dbschema = None
 
 # special testing stuff
-#from scopes.tests import oidc_data # add oidc URIs and keys to dummy_requests data
+from scopes.tests import data_auth # add oidc URIs and keys to dummy_requests data
 from scopes.tests import dummy_requests
 sys.modules['requests'] = dummy_requests
 
