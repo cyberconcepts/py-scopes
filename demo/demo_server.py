@@ -5,10 +5,10 @@ from scopes.storage import topic
 
 import logging
 import waitress
-from wsgiref.simple_server import make_server
 
 
 def run(app, config):
+    oidc.startup()  # todo: use generic app.startServices()
     port = int(config.server_port)
     print(f'Serving on port {port}.')
     waitress.serve(app, port=port)

@@ -28,7 +28,7 @@ dbpassword = getenv('DBPASSWORD', 'secret')
 dbschema = getenv('DBSCHEMA', 'demo')
 
 # authentication settings
-oidc_provider = 'https://a1.cy7.de'
+oidc_provider = getenv('OIDC_PROVIDER', 'https://a1.cy7.de')
 oidc_client_id = getenv('OIDC_CLIENT_ID', '311613119816392525')
 oidc_params = dict(
     op_config_url=oidc_provider + '/.well-known/openid-configuration',

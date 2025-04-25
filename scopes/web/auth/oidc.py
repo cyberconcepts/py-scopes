@@ -3,6 +3,7 @@
 from cryptography.fernet import Fernet
 from email.utils import formatdate
 import json
+import jwt
 import logging
 import requests
 from time import time
@@ -103,7 +104,6 @@ class Authenticator(DummyFolder):
         return None
 
     def login(self):
-        loadOidcProviderData()
         req = self.request
         #print('***', dir(req))
         state = util.rndstr()
@@ -142,7 +142,9 @@ class Authenticator(DummyFolder):
         tokenUrl = self.params['op_uris']['token_endpoint']
         tokenResponse = requests.post(tokenUrl, data=args)
         tdata =  tokenResponse.json()
-        #print('*** token response', tdata)
+        print('*** token response', tdata)
+        claims = self.getIdTokenData(tdata['id_token'])
+        print('*** token id claims', claims)
         headers = dict(Authorization='Bearer ' + tdata['access_token'])
         userInfoUrl = self.params['op_uris']['userinfo_endpoint']
         userInfo = requests.get(userInfoUrl, headers=headers)
@@ -189,13 +191,29 @@ class Authenticator(DummyFolder):
         cookie = self.request.getCookies().get(self.params['cookie_name'])
         if cookie is None:
             return {}
-            #raise ValueError('Missing authentication cookie')
         if self.cookieCrypt:
             cookie = self.cookieCrypt.decrypt(cookie)
         #print('*** loadSession', self.params['cookie_name'], cookie)
         # !error check: return None - or raise error?
         data = json.loads(cookie)
         return data
+
+    def getIdTokenData(self, token):
+        keyUri = self.params['op_uris']['jwks_uri']
+        jwksClient = jwt.PyJWKClient(keyUri)
+        key = jwksClient.get_signing_key_from_jwt(token)
+        return jwt.decode(token, key, options=dict(verify_aud=False))
+        header = jwt.get_unverified_header(token)
+        kid = header['kid']
+        key = self.loadOidcKeys()[kid]
+        return jwt.decode(token, key, audience=self.params.client_id)
+
+    def loadOidcKeys(self):
+        result = {}
+        keyUri = self.params['op_uris']['jwks_uri']
+        for k in requests.get(keyUri).json()['keys']:
+            result[k['kid']] = jwt.PyJWK(k)
+        return result
 
 
 @register('auth', Root)
@@ -218,6 +236,11 @@ def logout(context, request):
     return DefaultView(context, request)
 
 
+def startup():
+    loadOidcProviderData()
+    #app.Publication.registerBeforeTraversal(
+    #       lambda req: req.setPrincipal(authentication.authenticate(req))
+
 oidcProviderUris = ['authorization_endpoint', 'token_endpoint', 
                     'introspection_endpoint', 'userinfo_endpoint',
                     'revocation_endpoint', 'end_session_endpoint',
@@ -230,8 +253,5 @@ def loadOidcProviderData(force=False):
         opData = requests.get(params['op_config_url']).json()
         for key in oidcProviderUris:
             uris[key] = opData[key]
-    if force or params.get('op_keys') is None:
+    #if force or params.get('op_keys') is None:
         params['op_keys'] = requests.get(uris['jwks_uri']).json()['keys']
-
-
-

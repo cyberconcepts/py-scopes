@@ -29,5 +29,5 @@ def test_app(self, config):
 
 def test_auth(self, config):
     from scopes.web.auth import oidc
-    oidc.loadOidcProviderData()
+    oidc.startup()  # todo: use generic app.startServices()
     self.assertEqual(len(config.oidc_params['op_uris']), 8)
