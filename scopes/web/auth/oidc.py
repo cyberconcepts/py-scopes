@@ -199,24 +199,20 @@ class Authenticator(DummyFolder):
         return data
 
     def getIdTokenData(self, token):
-        keyUri = self.params['op_uris']['jwks_uri']
-        jwksClient = jwt.PyJWKClient(keyUri)
+        uri = self.params['op_uris']['jwks_uri']
+        keys = self.loadPublicKeys(uri)
+        header = jwt.get_unverified_header(token)
+        key = jwt.PyJWK(keys[header['kid']])
+        return jwt.decode(token, key, audience=self.params.client_id)
+        jwksClient = jwt.PyJWKClient(uri)
         key = jwksClient.get_signing_key_from_jwt(token)
         return jwt.decode(token, key, options=dict(verify_aud=False))
-        header = jwt.get_unverified_header(token)
-        kid = header['kid']
-        key = self.loadOidcKeys()[kid]
-        return jwt.decode(token, key, audience=self.params.client_id)
 
-    def loadOidcKeys(self):
-        result = {}
-        keyUri = self.params['op_uris']['jwks_uri']
-        for k in requests.get(keyUri).json()['keys']:
-            result[k['kid']] = jwt.PyJWK(k)
-        return result
+    def loadOidcKeys(self, uri):
+        return dict((item['kid'], item) for item in requests.get(uri).json()['keys'])
 
 
-@register('auth', Root)
+@register('auth')
 def authView(context, request):
     return Authenticator(request)
 
@@ -254,4 +250,4 @@ def loadOidcProviderData(force=False):
         for key in oidcProviderUris:
             uris[key] = opData[key]
     #if force or params.get('op_keys') is None:
-        params['op_keys'] = requests.get(uris['jwks_uri']).json()['keys']
+        #params['op_keys'] = requests.get(uris['jwks_uri']).json()['keys']

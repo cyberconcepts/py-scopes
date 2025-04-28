@@ -10,6 +10,8 @@ from zope.publisher.publish import publish
 from scopes.web.app import Publication
 from scopes.storage.folder import Root
 
+logger = logging.getLogger('tlib_web')
+
 
 def publishRequest(config, storage, path):
     appRoot = Root(storage)
@@ -20,7 +22,6 @@ def publishRequest(config, storage, path):
 
 
 def test_app(self, config):
-    logger = logging.getLogger('tlib_web')
     storage = config.storageFactory(config.dbschema)
     response = publishRequest(config, storage, '/top')
     logger.info('test_app: response %s %s', response.getStatus(), response.getHeaders())
@@ -31,3 +32,8 @@ def test_auth(self, config):
     from scopes.web.auth import oidc
     oidc.startup()  # todo: use generic app.startServices()
     self.assertEqual(len(config.oidc_params['op_uris']), 8)
+    storage = config.storageFactory(config.dbschema)
+    response = publishRequest(config, storage, '/top/auth/login')
+    headers = dict(response.getHeaders())
+    logger.info('test_auth: response %s %s', response.getStatus(), headers)
+    self.assertEqual(response.getStatus(), 302)
