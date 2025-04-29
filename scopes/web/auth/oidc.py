@@ -142,13 +142,12 @@ class Authenticator(DummyFolder):
         tokenUrl = self.params['op_uris']['token_endpoint']
         tokenResponse = requests.post(tokenUrl, data=args)
         tdata =  tokenResponse.json()
-        print('*** token response', tdata)
-        claims = self.getIdTokenData(tdata['id_token'])
-        print('*** token id claims', claims)
-        headers = dict(Authorization='Bearer ' + tdata['access_token'])
-        userInfoUrl = self.params['op_uris']['userinfo_endpoint']
-        userInfo = requests.get(userInfoUrl, headers=headers)
-        userData = userInfo.json()
+        #print('*** token response', tdata)
+        userData = self.getIdTokenData(tdata['id_token'])
+        #print('*** token id claims', userData)
+        #headers = dict(Authorization='Bearer ' + tdata['access_token'])
+        #userInfoUrl = self.params['op_uris']['userinfo_endpoint']
+        #userData = requests.get(userInfoUrl, headers=headers).json()
         #print('*** user data', userData)
         groupInfo = userData.get('urn:zitadel:iam:org:project:roles', {})
         #print('*** group info', groupInfo)
