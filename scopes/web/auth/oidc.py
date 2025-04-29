@@ -200,16 +200,14 @@ class Authenticator(DummyFolder):
 
     def getIdTokenData(self, token):
         uri = self.params['op_uris']['jwks_uri']
-        keys = self.loadPublicKeys(uri)
+        keys = loadOidcKeys(uri)
         header = jwt.get_unverified_header(token)
         key = jwt.PyJWK(keys[header['kid']])
-        return jwt.decode(token, key, audience=self.params.client_id)
-        jwksClient = jwt.PyJWKClient(uri)
-        key = jwksClient.get_signing_key_from_jwt(token)
-        return jwt.decode(token, key, options=dict(verify_aud=False))
+        return jwt.decode(token, key, audience=self.params['client_id'])
 
-    def loadOidcKeys(self, uri):
-        return dict((item['kid'], item) for item in requests.get(uri).json()['keys'])
+
+def loadOidcKeys(uri):
+    return dict((item['kid'], item) for item in requests.get(uri).json()['keys'])
 
 
 @register('auth')
