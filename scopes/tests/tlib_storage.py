@@ -3,7 +3,7 @@
 """Test implementation for the `scopes.storage` package."""
 
 from datetime import datetime
-from scopes.storage import concept, folder, topic, tracking
+from scopes.storage import concept, folder, message, topic, tracking
 
 
 def test_tracking(self, config):
@@ -82,7 +82,7 @@ def test_type(self, config):
     concept.setupCoreTypes(storage)
     types = storage.getContainer(concept.Type)
     tps = list(types.query())
-    self.assertEqual(len(tps), 6)
+    self.assertEqual(len(tps), 7)
 
     tfolder = types.queryLast(name='folder')
     fldrs = list(tfolder.values())
@@ -121,4 +121,13 @@ def test_topic(self, config):
     self.assertEqual(c[0].name, 'prog_lang')
 
     storage.commit()
-    
+
+
+def test_message(self, config):
+    storage = config.storageFactory(config.dbschema)
+    storage.dropTable('messages')
+    tracks = storage.create(message.Messages)
+
+    storage.commit()
+
+

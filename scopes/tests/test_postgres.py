@@ -32,6 +32,9 @@ class Test(unittest.TestCase):
     def test_004_topic(self):
         tlib_storage.test_topic(self, config)
 
+    def test_005_message(self):
+        tlib_storage.test_message(self, config)
+
 def test_suite():
     return unittest.TestSuite((
         unittest.TestLoader().loadTestsFromTestCase(Test),

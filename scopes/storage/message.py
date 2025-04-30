@@ -5,6 +5,7 @@
 from scopes.storage.common import registerContainerClass
 from scopes.storage.tracking import Container, Track
 
+
 class Message(Track):
 
     headFields = ['domain', 'action', 'class', 'item']

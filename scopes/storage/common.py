@@ -52,8 +52,8 @@ class Storage(object):
         return metadata.tables.get((schema and schema + '.' or '') + tableName)
 
     def dropTable(self, tableName):
+        prefix = self.schema and self.schema + '.' or ''
         with self.engine.begin() as conn:
-            prefix = self.schema and self.schema + '.' or ''
             conn.execute(text('drop table if exists %s%s' % (prefix, tableName)))
 
     def resetSequence(self, tableName, colName, v):
@@ -63,7 +63,7 @@ class Storage(object):
             conn.execute(text(sq))
 
 
-class StorageFactory(object):
+class StorageFactory:
 
     def sessionFactory(self):
          return self.engine.connect
