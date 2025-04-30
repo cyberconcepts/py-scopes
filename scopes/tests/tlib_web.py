@@ -37,3 +37,6 @@ def test_auth(self, config):
     headers = dict(response.getHeaders())
     logger.info('test_auth: response %s %s', response.getStatus(), headers)
     self.assertEqual(response.getStatus(), 302)
+    uri = config.oidc_params['op_uris']['jwks_uri']
+    keys = oidc.loadOidcKeys(uri)
+    logger.info('test_auth keys: %s', keys)

@@ -104,8 +104,6 @@ class Authenticator(DummyFolder):
         return None
 
     def login(self):
-        req = self.request
-        #print('***', dir(req))
         state = util.rndstr()
         nonce = util.rndstr()
         codeVerifier = util.rndstr2()
@@ -123,7 +121,7 @@ class Authenticator(DummyFolder):
         authUrl = self.params['op_uris']['authorization_endpoint']
         loginUrl = '?'.join((authUrl, urlencode(args)))
         logger.debug('login: URL %s', loginUrl)
-        req.response.redirect(loginUrl, trusted=True)
+        self.request.response.redirect(loginUrl, trusted=True)
 
     def callback(self):
         req = self.request
@@ -142,24 +140,18 @@ class Authenticator(DummyFolder):
         tokenUrl = self.params['op_uris']['token_endpoint']
         tokenResponse = requests.post(tokenUrl, data=args)
         tdata =  tokenResponse.json()
-        #print('*** token response', tdata)
         userData = self.getIdTokenData(tdata['id_token'])
-        #print('*** token id claims', userData)
-        #headers = dict(Authorization='Bearer ' + tdata['access_token'])
-        #userInfoUrl = self.params['op_uris']['userinfo_endpoint']
-        #userData = requests.get(userInfoUrl, headers=headers).json()
-        #print('*** user data', userData)
         groupInfo = userData.get('urn:zitadel:iam:org:project:roles', {})
-        #print('*** group info', groupInfo)
-        groupInfo = userData.get('urn:zitadel:iam:org:project:roles')
         ndata = dict(
                 userid=userData['preferred_username'],
                 name=userData['name'],
                 email=userData['email'],
                 groups=list(groupInfo.keys()),
                 access_token=tdata['access_token'],
+                session_id=userData['sid'],
         )
         self.storeSession(ndata)
+        logger.debug('callback: session data: %s', ndata)
         req.response.redirect(self.reqUrl, trusted=True)
 
     def logout(self):
@@ -173,7 +165,7 @@ class Authenticator(DummyFolder):
         options = dict(
                 path='/',
                 expires=formatdate(time() + lifetime, localtime=False, usegmt=True),
-                #httponly=True,
+                httponly=True,
         )
         options['max-age'] = lifetime
         domain = self.params['cookie_domain']
@@ -181,7 +173,6 @@ class Authenticator(DummyFolder):
             options['domain'] = domain
         name = self.params['cookie_name']
         value = json.dumps(data)
-        #print('*** storeSession', name, value, options)
         if self.cookieCrypt:
             value = self.cookieCrypt.encrypt(value.encode('UTF-8')).decode('ASCII')
         self.request.response.setCookie(name, value, **options)
@@ -192,7 +183,6 @@ class Authenticator(DummyFolder):
             return {}
         if self.cookieCrypt:
             cookie = self.cookieCrypt.decrypt(cookie)
-        #print('*** loadSession', self.params['cookie_name'], cookie)
         # !error check: return None - or raise error?
         data = json.loads(cookie)
         return data
@@ -203,10 +193,6 @@ class Authenticator(DummyFolder):
         header = jwt.get_unverified_header(token)
         key = jwt.PyJWK(keys[header['kid']])
         return jwt.decode(token, key, audience=self.params['client_id'])
-
-
-def loadOidcKeys(uri):
-    return dict((item['kid'], item) for item in requests.get(uri).json()['keys'])
 
 
 @register('auth')
@@ -248,3 +234,6 @@ def loadOidcProviderData(force=False):
             uris[key] = opData[key]
     #if force or params.get('op_keys') is None:
         #params['op_keys'] = requests.get(uris['jwks_uri']).json()['keys']
+
+def loadOidcKeys(uri):
+    return dict((item['kid'], item) for item in requests.get(uri).json()['keys'])
