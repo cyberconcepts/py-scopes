@@ -155,10 +155,20 @@ class Authenticator(DummyFolder):
         req.response.redirect(self.reqUrl, trusted=True)
 
     def logout(self):
+        #sdata = self.loadSession()
+        #url = self.params['oidc_provider'] + 'v2/sessions/' + sdata['session_id']
+        # requests.delete(url, headers=auth)
+        logoutUrl = self.params['op_uris']['end_session_endpoint']
+        args = dict(
+                client_id=self.params['client_id'],
+                post_logout_redirect_uri=config.base_url,
+        )
+        logoutUrl = '?'.join((logoutUrl, urlencode(args)))
         cname = self.params['cookie_name']
-        logger.debug('logout, cookie: %s', cname)
+        logger.debug('logout, cookie: %s, url: %s', cname, logoutUrl)
         self.request.response.expireCookie(cname, path='/')
-        self.request.response.redirect(config.base_url, trusted=True)
+        self.request.response.redirect(logoutUrl, trusted=True)
+        #self.request.response.redirect(config.base_url, trusted=True)
 
     def storeSession(self, data):
         lifetime = int(self.params['cookie_lifetime'])
