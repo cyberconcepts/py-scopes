@@ -104,7 +104,7 @@ class Authenticator(DummyFolder):
         nonce = util.rndstr()
         codeVerifier = util.rndstr2()
         codeChallenge = util.hashS256(codeVerifier)
-        reqUrl = self.request.form.get('camefrom') or params['base_url']
+        reqUrl = self.request.form.get('camefrom') or config.base_url
         args = dict(
                 client_id=self.params['client_id'],
                 response_type='code', # 'code id_token token',
@@ -124,7 +124,7 @@ class Authenticator(DummyFolder):
         req = self.request
         logger.debug('callback: %s %s', self, req.form)
         sdata = self.loadSession()
-        reqUrl = sdata.get('request_uri') or self.params['base_url']
+        reqUrl = sdata.get('request_uri') or config.base_url
         code = req.form['code']
         # !check state: req.form['state'] == sdata['state']
         args = dict(
@@ -153,9 +153,6 @@ class Authenticator(DummyFolder):
         req.response.redirect(reqUrl, trusted=True)
 
     def logout(self):
-        #sdata = self.loadSession()
-        #url = self.params['oidc_provider'] + 'v2/sessions/' + sdata['session_id']
-        # requests.delete(url, headers=auth)
         logoutUrl = self.params['op_uris']['end_session_endpoint']
         args = dict(
                 client_id=self.params['client_id'],
@@ -166,7 +163,6 @@ class Authenticator(DummyFolder):
         logger.debug('logout, cookie: %s, url: %s', cname, logoutUrl)
         self.request.response.expireCookie(cname, path='/')
         self.request.response.redirect(logoutUrl, trusted=True)
-        #self.request.response.redirect(config.base_url, trusted=True)
 
     def storeSession(self, data):
         lifetime = int(self.params['cookie_lifetime'])
