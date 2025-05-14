@@ -85,11 +85,7 @@ class Authenticator(DummyFolder):
     def __init__(self, request):
         self.request = request
         self.params = config.oidc_params
-        self.reqUrl = config.base_url
         self.setCrypt(self.params.get('cookie_crypt'))
-
-    def setReqUrl(self, base, path):
-        self.reqUrl = '/'.join((base, path))
 
     def setCrypt(self, key):
         self.cookieCrypt = key and Fernet(key) or None
@@ -108,6 +104,7 @@ class Authenticator(DummyFolder):
         nonce = util.rndstr()
         codeVerifier = util.rndstr2()
         codeChallenge = util.hashS256(codeVerifier)
+        reqUrl = self.request.form.get('camefrom') or params['base_url']
         args = dict(
                 client_id=self.params['client_id'],
                 response_type='code', # 'code id_token token',
@@ -115,9 +112,9 @@ class Authenticator(DummyFolder):
                 code_challenge=codeChallenge, code_challenge_method='S256',
                 scope='openid profile email urn:zitadel:iam:user:resourceowner',
                 redirect_uri=self.params['callback_url'],
-                request_uri=self.reqUrl,
         )
-        self.storeSession(dict(state=state, nonce=nonce, code_verifier=codeVerifier))
+        self.storeSession(dict(state=state, nonce=nonce, request_uri=reqUrl,
+                               code_verifier=codeVerifier))
         authUrl = self.params['op_uris']['authorization_endpoint']
         loginUrl = '?'.join((authUrl, urlencode(args)))
         logger.debug('login: URL %s', loginUrl)
@@ -127,6 +124,7 @@ class Authenticator(DummyFolder):
         req = self.request
         logger.debug('callback: %s %s', self, req.form)
         sdata = self.loadSession()
+        reqUrl = sdata.get('request_uri') or self.params['base_url']
         code = req.form['code']
         # !check state: req.form['state'] == sdata['state']
         args = dict(
@@ -152,7 +150,7 @@ class Authenticator(DummyFolder):
         )
         self.storeSession(ndata)
         logger.debug('callback: session data: %s', ndata)
-        req.response.redirect(self.reqUrl, trusted=True)
+        req.response.redirect(reqUrl, trusted=True)
 
     def logout(self):
         #sdata = self.loadSession()
