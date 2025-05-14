@@ -126,7 +126,10 @@ def test_topic(self, config):
 def test_message(self, config):
     storage = config.storageFactory(config.dbschema)
     storage.dropTable('messages')
-    tracks = storage.create(message.Messages)
+    messages = storage.create(message.Messages)
+    m01 = message.Message('system', 'data', 'session', 'V1_317784226621611853')
+    m01.update(dict(userid='tst9'))
+    mid01 = messages.save(m01)
 
     storage.commit()
 
