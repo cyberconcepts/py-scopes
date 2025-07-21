@@ -1,4 +1,4 @@
-# scopes.organize.task
+# scopes.org.task
 
 """Task (and corresponding container) implementation."""
 

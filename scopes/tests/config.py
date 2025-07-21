@@ -55,3 +55,7 @@ oidc_params = dict(
     cookie_crypt=getenv('OIDC_COOKIE_CRYPT', None)
 )
 
+# access zitadel API
+zitadel_params = dict(
+    private_key_file=('ZITADEL_SERVICE_USER_PRIVATE_KEY_FILE', '.private-key.json')
+)

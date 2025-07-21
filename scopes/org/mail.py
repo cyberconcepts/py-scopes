@@ -1,4 +1,4 @@
-# scopes.organize.mail
+# scopes.org.mail
 
 from zope.interface import implementer
 from zope.sendmail.interfaces import IMailDelivery
