@@ -1,6 +1,7 @@
 # scopes.web.auth.uidc
 
 from cryptography.fernet import Fernet
+from datetime import datetime, timedelta, timezone
 from email.utils import formatdate
 import json
 import jwt
@@ -21,6 +22,8 @@ import config
 
 logger = logging.getLogger('web.auth.oidc')
 
+
+# OIDC authentication for browser users (principals)
 
 @implementer(IAuthentication)
 class OidcAuthentication:
@@ -241,3 +244,41 @@ def loadOidcProviderData(force=False):
 
 def loadOidcKeys(uri):
     return dict((item['kid'], item) for item in requests.get(uri).json()['keys'])
+
+
+# service user authentication
+
+def authenticateClient(paramsName='oidc_params'):
+    loadOidcProviderData()
+    params = getattr(config, paramsName)
+    keyData = loadPrivateKeyData(params['private_key_file'])
+    userId = keyData['userId']
+    keyId = keyData['keyId']
+    key = keyData['key']
+    now = datetime.now(timezone.utc)
+    token_lifetime=params.get('api_token_lifetime', 60)
+    payload = dict(
+            iss=userId, sub=userId, aud=config.oidc_provider,
+            iat=now, exp=now + timedelta(minutes=token_lifetime),
+    )
+    jwToken = jwt.encode(payload, key, algorithm="RS256", 
+                         headers=dict(alg='RS256', kid=keyId))
+    data = dict(
+            grant_type='urn:ietf:params:oauth:grant-type:jwt-bearer',
+            scope='openid urn:zitadel:iam:org:project:id:zitadel:aud',
+            assertion=jwToken,
+    )
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    url = params['op_uris']['token_endpoint']
+    resp = requests.post(url, data=data, headers=headers)
+    if resp.status_code != 200:
+        #print(resp.text)
+        logger.error('authenticateClient: %s', resp.text)
+        return None
+    tdata = resp.json()
+    print(tdata)
+    return tdata['access_token']
+
+def loadPrivateKeyData(fn='.private-key.json'):
+    with open(fn) as f:
+        return json.load(f)
