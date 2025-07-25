@@ -265,7 +265,7 @@ def authenticateClient(paramsName='oidc_params'):
                          headers=dict(alg='RS256', kid=keyId))
     data = dict(
             grant_type='urn:ietf:params:oauth:grant-type:jwt-bearer',
-            scope='openid urn:zitadel:iam:org:project:id:zitadel:aud',
+            scope=' '.join(('openid', params['op_project_scope']))
             assertion=jwToken,
     )
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -276,7 +276,7 @@ def authenticateClient(paramsName='oidc_params'):
         logger.error('authenticateClient: %s', resp.text)
         return None
     tdata = resp.json()
-    print(tdata)
+    #print(tdata)
     return tdata['access_token']
 
 def loadPrivateKeyData(fn='.private-key.json'):

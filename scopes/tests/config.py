@@ -55,3 +55,7 @@ oidc_params = dict(
     cookie_crypt=getenv('OIDC_COOKIE_CRYPT', None),
     private_key_file=getenv('OIDC_SERVICE_USER_PRIVATE_KEY_FILE', '.private-key.json'),
 )
+
+oidc_provider_endpoints = dict(
+    user='v2/users/human',
+)

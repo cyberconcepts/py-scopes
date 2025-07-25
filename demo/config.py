@@ -34,6 +34,7 @@ oidc_params = dict(
     op_config_url=oidc_provider + '/.well-known/openid-configuration',
     op_uris=None,
     op_keys=None,
+    op_project_scope='urn:zitadel:iam:org:project:id:zitadel:aud',
     callback_url=getenv('OIDC_CALLBACK_URL', base_url + '/auth/callback'),
     client_id = oidc_client_id,
     cookie_name=getenv('OIDC_COOKIE_NAME', 'oidc_' + oidc_client_id),
@@ -43,7 +44,6 @@ oidc_params = dict(
     private_key_file=getenv('OIDC_SERVICE_USER_PRIVATE_KEY_FILE', '.private-key.json'),
 )
 
-# access zitadel API
-zitadel_params = dict(
-    private_key_file=getenv('ZITADEL_SERVICE_USER_PRIVATE_KEY_FILE', '.private-key.json')
+oidc_provider_endpoints = dict(
+    user='v2/users/human',
 )

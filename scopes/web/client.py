@@ -21,7 +21,7 @@ class ApiClient:
     def post(self, endpoint, data):
         headers = self.authentication()
         # self.makeUrl(endpoint)
-        url = '/'.join(self.bareUrl, endpoint)
+        url = '/'.join(self.baseUrl, endpoint)
         resp = requests.post(url, data=data, headers=headers)
         # check: resp.status_code
         data = resp.json()
