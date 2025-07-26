@@ -2,6 +2,7 @@
 
 """Basic user account (principal) definitions + access to identity provider."""
 
+from dataclasses import dataclass, field
 from scopes.web import client
 from scopes import util
 
@@ -26,11 +27,12 @@ class ExtUser:
 
     provider = 'zitatel'
     endpoints = dict(
-            users='v2/users',
+            users='v2/users/human',
     )
 
-    def __init__(self, user, organization, userId=None, userIdPrefix=''):
+    def __init__(self, user, organization, userId=None, userIdPrefix='', grants=None):
         self.user = user
+        self.grants = grants or []
 
     def asDict(self):
         return dict(username=self.user.name)
@@ -40,4 +42,3 @@ class ExtUser:
         data = self.asDict()
         res = clt.post(config.oidc_provider_endpoints['users'], data)
 
-   grants: List[str]

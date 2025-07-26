@@ -14,7 +14,7 @@ class ApiClient:
         self.authToken = None
 
     def authentication(self):
-        if self.authToken = None:
+        if self.authToken == None:
             self.authToken = oidc.authenticateClient()
         return dict(Authorization=f'Bearer {self.authToken}')
 

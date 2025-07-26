@@ -40,3 +40,6 @@ def test_auth(self, config):
     uri = config.oidc_params['op_uris']['jwks_uri']
     keys = oidc.loadOidcKeys(uri)
     logger.info('test_auth keys: %s', keys)
+
+def test_user_data(self, config):
+    from scopes.org import user

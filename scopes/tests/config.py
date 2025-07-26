@@ -46,6 +46,7 @@ oidc_params = dict(
     op_config_url=oidc_provider + '/.well-known/openid-configuration',
     op_uris=None,
     op_keys=None,
+    op_project_scope='urn:zitadel:iam:org:project:id:zitadel:aud',
     callback_url=getenv('OIDC_CALLBACK_URL', base_url + '/auth/callback'),
     client_id=oidc_client_id,
     principal_prefix=getenv('OIDC_PRINCIPAL_PREFIX', 'loops.'),

@@ -33,6 +33,7 @@ class Test(unittest.TestCase):
     def test_013_web(self):
         tlib_web.test_app(self, config)
         tlib_web.test_auth(self, config)
+        tlib_web.test_user_data(self, config)
 
 
 def suite():

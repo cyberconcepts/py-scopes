@@ -265,7 +265,7 @@ def authenticateClient(paramsName='oidc_params'):
                          headers=dict(alg='RS256', kid=keyId))
     data = dict(
             grant_type='urn:ietf:params:oauth:grant-type:jwt-bearer',
-            scope=' '.join(('openid', params['op_project_scope']))
+            scope=' '.join(('openid', params['op_project_scope'])),
             assertion=jwToken,
     )
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
