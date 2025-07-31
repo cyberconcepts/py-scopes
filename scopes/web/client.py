@@ -2,16 +2,20 @@
 
 """Web client functionality: access to web sites, APIs with authentication."""
 
+import logging
 import requests
+from scopes.web.auth import oidc
 
 import config
+
+logger = logging.getLogger('web.client')
 
 
 class ApiClient:
 
-    def __init__(self, baseUrl):
+    def __init__(self, baseUrl, authToken=None):
         self.baseUrl = baseUrl
-        self.authToken = None
+        self.authToken = authToken
 
     def authentication(self):
         if self.authToken == None:
@@ -21,9 +25,11 @@ class ApiClient:
     def post(self, endpoint, data):
         headers = self.authentication()
         # self.makeUrl(endpoint)
-        url = '/'.join(self.baseUrl, endpoint)
-        resp = requests.post(url, data=data, headers=headers)
-        # check: resp.status_code
+        url = '/'.join((self.baseUrl, endpoint))
+        resp = requests.post(url, json=data, headers=headers)
+        if resp.status_code != 200:
+            logger.error('post %s: %s', url, resp.text)
+            return resp.text
         data = resp.json()
         return data
 
