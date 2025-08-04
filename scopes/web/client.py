@@ -24,12 +24,21 @@ class ApiClient:
 
     def post(self, endpoint, data):
         headers = self.authentication()
+        headers['Content-Type'] = 'application/json'
         # self.makeUrl(endpoint)
         url = '/'.join((self.baseUrl, endpoint))
         resp = requests.post(url, json=data, headers=headers)
-        if resp.status_code != 200:
-            logger.error('post %s: %s', url, resp.text)
-            return resp.text
-        data = resp.json()
-        return data
+        if resp.status_code >= 400:
+            logger.error('post %s: %s %s', url, resp.status_code, resp.text)
+        return resp.status_code, resp.json()
+
+    def put(self, endpoint, objId, data):
+        headers = self.authentication()
+        headers['Content-Type'] = 'application/json'
+        # self.makeUrl(endpoint)
+        url = '/'.join((self.baseUrl, endpoint, objId))
+        resp = requests.put(url, json=data, headers=headers)
+        if resp.status_code >= 400:
+            logger.error('post %s: %s %s', url, resp.status_code, resp.text)
+        return resp.status_code, resp.json()
 

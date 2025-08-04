@@ -50,12 +50,38 @@ class ExtUser:
             ),
             organization=dict(orgId=params['organization_id']),
         )
-        if self.user.hashedPassword:
-            data['hashedPassword'] = self.user.hashedPassword
         return data
 
-    def send(self):
+    def create(self, updateIfExits=False):
         clt = client.ApiClient(config.oidc_provider)
         data = self.asDict()
-        res = clt.post(self.endpoints['users_human'], data)
+        if self.user.hashedPassword:
+            data['hashedPassword'] = self.user.hashedPassword
+        status, res = clt.post(self.endpoints['users_human'], data)
+        if status > 201:
+            if updateIfExits:
+                return self.update()
+            else:
+                return status, res
+        if self.user.grants:
+            return self.createGrants()
 
+    def update(self, createIfMissing=False):
+        clt = client.ApiClient(config.oidc_provider)
+        data = self.asDict()
+        if self.user.hashedPassword:
+            data['password'] = dict(hashedPassword=self.user.hashedPassword)
+        status, res = clt.put(self.endpoints['users_human'], self.userId, data)
+        if status > 200:
+            if createIfMissing:
+                return self.create()
+            else:
+                return status, res
+        if self.user.grants:
+            return self.updateGrants()
+
+    def createGrants(self):
+        pass
+
+    def updateGrants(self):
+        pass
