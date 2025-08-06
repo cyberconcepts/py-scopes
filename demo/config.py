@@ -43,5 +43,6 @@ oidc_params = dict(
     cookie_crypt=getenv('OIDC_COOKIE_CRYPT', None),
     private_key_file=getenv('OIDC_SERVICE_USER_PRIVATE_KEY_FILE', '.private-key.json'),
     organization_id=getenv('OIDC_ORGANIZATION_ID', '311473502274248525'),
+    project_id=getenv('OIDC_PROJECT_ID', '311473502274248525'),
 )
 
