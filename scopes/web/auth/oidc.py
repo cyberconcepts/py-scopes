@@ -60,8 +60,6 @@ authentication = OidcAuthentication(None)
 @implementer(IGroupAwarePrincipal)
 class Principal:
 
-    group_prefix = 'gloops.'
-
     def __init__(self, id, data):
         self.id = id
         self.data = data
@@ -72,8 +70,7 @@ class Principal:
 
     @property
     def groups(self):
-        groups = [self.group_prefix + g for g in self.data.get('groups', [])]
-        return groups
+        return self.data.get('groups', [])
 
     def asDict(self):
         data = self.data.copy()
@@ -84,6 +81,8 @@ class Principal:
 class Authenticator(DummyFolder):
 
     prefix = 'auth.oidc'
+
+    group_prefix = 'gloops.'
 
     def __init__(self, request):
         self.request = request
@@ -98,7 +97,7 @@ class Authenticator(DummyFolder):
         data = self.loadSession()
         logger.debug('authenticate: %s', data)
         if data and 'userid' in data:
-            id = self.params.get('principal_prefix', '') + data.pop('userid')
+            id = data.pop('userid')
             return Principal(id, data)
         return None
 
@@ -123,7 +122,7 @@ class Authenticator(DummyFolder):
         logger.debug('login: URL %s', loginUrl)
         self.request.response.redirect(loginUrl, trusted=True)
 
-    def callback(self):
+    def callback(self, groupsProvider=None):
         req = self.request
         logger.debug('callback: %s %s', self, req.form)
         sdata = self.loadSession()
@@ -142,12 +141,19 @@ class Authenticator(DummyFolder):
         tokenResponse = requests.post(tokenUrl, data=args)
         tdata =  tokenResponse.json()
         userData = self.getIdTokenData(tdata['id_token'])
-        groupInfo = userData.get('urn:zitadel:iam:org:project:roles', {})
+        userId = userData['sub']
+        if not '.' in userId:
+            userId = (self.params.get('principal_prefix', '') + 
+                      userData['preferred_username'])
+        groups = userData.get('urn:zitadel:iam:org:project:roles', {})
+        groups = set(self.group_prefix + g for g in groups)
+        if groupsProvider is not None:
+            groups = groups.union(groupsProvider(userId))
         ndata = dict(
-                userid=userData['preferred_username'],
+                userid=userId,
                 name=userData['name'],
                 email=userData['email'],
-                groups=list(groupInfo.keys()),
+                groups=list(groups),
                 access_token=tdata['access_token'],
                 session_id=userData['sid'],
         )
