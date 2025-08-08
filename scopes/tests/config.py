@@ -38,7 +38,6 @@ from scopes.tests import data_auth # add oidc URIs and keys to dummy_requests da
 from scopes.tests import dummy_requests
 sys.modules['requests'] = dummy_requests
 
-
 # authentication settings
 oidc_provider = 'test://oidc'
 oidc_client_id = getenv('OIDC_CLIENT_ID', '12345')

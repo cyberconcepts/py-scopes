@@ -31,7 +31,6 @@ oidc_data = {
         "access_token": "abcde12345"},
     'test://oidc/v2/users/human': {
         "code": 1}
-    }
 }
 
 from scopes.tests.dummy_requests import response_data

@@ -29,7 +29,7 @@ dbschema = getenv('DBSCHEMA', 'demo')
 
 # authentication settings
 oidc_provider = getenv('OIDC_PROVIDER', 'https://a1.cy7.de')
-oidc_client_id = getenv('OIDC_CLIENT_ID', '311613119816392525')
+oidc_client_id = getenv('OIDC_CLIENT_ID', '12345')
 oidc_params = dict(
     op_config_url=oidc_provider + '/.well-known/openid-configuration',
     op_uris=None,
@@ -42,7 +42,7 @@ oidc_params = dict(
     cookie_lifetime=getenv('OIDC_COOKIE_LIFETIME', '86400'),
     cookie_crypt=getenv('OIDC_COOKIE_CRYPT', None),
     private_key_file=getenv('OIDC_SERVICE_USER_PRIVATE_KEY_FILE', '.private-key.json'),
-    organization_id=getenv('OIDC_ORGANIZATION_ID', '311473502274248525'),
-    project_id=getenv('OIDC_PROJECT_ID', '311473502274248525'),
+    organization_id=getenv('OIDC_ORGANIZATION_ID', '12346'),
+    project_id=getenv('OIDC_PROJECT_ID', '12347'),
 )
 
