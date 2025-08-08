@@ -26,7 +26,12 @@ oidc_data = {
         "kid": "316766976250797901",
         "alg": "RS256",
         "n": public_key_n,
-        "e": "AQAB"}]}
+        "e": "AQAB"}]},
+    'test://oidc/oauth/v2/token': {
+        "access_token": "abcde12345"},
+    'test://oidc/v2/users/human': {
+        "code": 1}
+    }
 }
 
 from scopes.tests.dummy_requests import response_data

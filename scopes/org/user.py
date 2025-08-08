@@ -20,7 +20,7 @@ class User:
     firstName: str = ''
     lastName: str = ''
     displayName: str = ''
-    grants: List[str] = field(default_factory=list)
+    groups: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         if not self.displayName:
@@ -61,7 +61,7 @@ class ExtUser:
         )
         return data
 
-    def create(self, updateIfExits=False):
+    def create(self, updateIfExists=False):
         data = self.asDict()
         if self.user.hashedPassword:
             data['hashedPassword'] = self.user.hashedPassword
@@ -69,10 +69,9 @@ class ExtUser:
         if status > 201:
             if updateIfExits:
                 return self.update()
-            else:
-                return status, res
-        if self.user.grants:
-            return self.createGrants()
+        return status, res
+        #if self.user.groups:
+            #return self.createGroups()
 
     def update(self, createIfMissing=False):
         data = self.asDict()
@@ -84,19 +83,13 @@ class ExtUser:
                 return self.create()
             else:
                 return status, res
-        if self.user.grants:
-            #return self.updateGrants()
-            groups = ' '.join(self.user.grants)
-            data = dict(metadata=[dict(key='gloops', value='groups')])
-            return self.client.post(f'v2/users/human/{self.userId}/metadata', data)
+        #if self.user.groups:
+            #return self.updateGroups()
 
-    def createGrants(self):
+    def createGroups(self):
         data = dict(
                 userId=self.userId,
                 projectId=config.oidc_params['project_id'],
-                roleKeys=self.user.grants,
+                roleKeys=self.user.groups,
         )
         return self.client.post(self.endpoints['create_authorization'], data)
-
-    def updateGrants(self):
-        self.createGrants()

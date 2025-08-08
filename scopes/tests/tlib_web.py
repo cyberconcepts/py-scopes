@@ -43,3 +43,7 @@ def test_auth(self, config):
 
 def test_user_data(self, config):
     from scopes.org import user
+    u1 = user.User(login='tst9', email='tst9@example.com',
+                   firstName='Test', lastName='User')
+    xu1 = user.ExtUser(u1, idPrefix='test.')
+    xu1.create(updateIfExists=True)
