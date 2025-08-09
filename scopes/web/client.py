@@ -6,8 +6,6 @@ import logging
 import requests
 from scopes.web.auth import oidc
 
-import config
-
 logger = logging.getLogger('web.client')
 
 

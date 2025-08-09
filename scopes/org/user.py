@@ -67,7 +67,7 @@ class ExtUser:
             data['hashedPassword'] = self.user.hashedPassword
         status, res = self.client.post(self.endpoints['users_human'], data)
         if status > 201:
-            if updateIfExits:
+            if updateIfExists:
                 return self.update()
         return status, res
         #if self.user.groups:
