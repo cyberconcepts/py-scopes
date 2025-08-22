@@ -8,8 +8,11 @@ sys.path = [os.path.dirname(__file__)] + sys.path
 import unittest
 from scopes.tests import tlib_storage
 
+from scopes.tests.util import setup_logging
 from scopes.storage.db.postgres import StorageFactory 
 import config
+setup_logging(config)
+
 config.dbengine = 'postgresql+psycopg'
 config.dbname = 'testdb'
 config.dbuser = 'testuser'

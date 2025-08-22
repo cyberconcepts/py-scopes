@@ -8,8 +8,11 @@ sys.path = [os.path.dirname(__file__)] + sys.path
 import unittest
 from scopes.tests import tlib_web, tlib_storage
 
+from scopes.tests.util import setup_logging
 from scopes.storage.common import StorageFactory
 import config
+setup_logging(config)
+
 config.dbengine = 'sqlite'
 config.dbname = 'var/test.db'
 config.dbschema = None

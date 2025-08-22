@@ -11,14 +11,6 @@ log_level = logging.INFO
 log_format = '%(asctime)s %(levelname)s %(name)s %(message)s'
 log_dateformat = '%Y-%m-%dT%H:%M:%S'
 
-def setup_logging():
-    hdlr = logging.getLogger().handlers[-1]
-    logging.getLogger().removeHandler(hdlr) # remove NullHandler added by testrunner
-    logging.basicConfig(filename=log_file, level=log_level, 
-                        format=log_format, datefmt=log_dateformat)
-
-setup_logging()
-
 # server / app settings
 server_port = '8999'
 base_url = 'testing:'
