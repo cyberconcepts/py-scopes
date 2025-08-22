@@ -56,9 +56,5 @@ oidc_params = dict(
     private_key_file=getenv('OIDC_SERVICE_USER_PRIVATE_KEY_FILE', 
                             'scopes/tests/test-private-key.json'),
     organization_id=getenv('OIDC_ORGANIZATION_ID', '12346'),
-    project_id=getenv('OIDC_PROJECT_ID', '12347'),
-)
-
-oidc_provider_endpoints = dict(
-    user='v2/users/human',
+    project_id=getenv('OIDC_PROJECT_ID', None),
 )
