@@ -36,11 +36,17 @@ class OidcAuthentication:
         prc = auth.authenticate()
         if prc is None and self.baseAuth is not None:
             prc = self.baseAuth.authenticate(request)
+        if prc is None:
+            prc = self.unauthenticatedPrincipal()
         return prc
 
     def getPrincipal(self, id):
         if self.baseAuth is not None:
             return self.baseAuth.getPrincipal(id)
+
+    def getPrincipals(self, s):
+        if self.baseAuth is not None:
+            return self.baseAuth.getPrincipals(s)
 
     def unauthenticatedPrincipal(self):
         if self.baseAuth is not None:
