@@ -10,7 +10,7 @@ import requests
 from time import time
 from urllib.parse import urlencode
 from zope.authentication.interfaces import IAuthentication, IPrincipal
-from zope.interface import implementer
+from zope.interface import Attribute, Interface, implementer
 from zope.publisher.interfaces import Unauthorized
 from zope.security.interfaces import IGroupAwarePrincipal
 
@@ -63,7 +63,11 @@ class OidcAuthentication:
 authentication = OidcAuthentication(None)
 
 
-@implementer(IGroupAwarePrincipal)
+class IExternalPrincipal(Interface):
+    extUserLink = Attribute('Link to OIDC provider for viewing/editing external user')
+
+
+@implementer(IGroupAwarePrincipal, IExternalPrincipal)
 class Principal:
 
     def __init__(self, id, data):
@@ -77,6 +81,10 @@ class Principal:
     @property
     def groups(self):
         return self.data.get('groups', [])
+
+    @property
+    def extUserLink(self):
+        return config.oidc_provider + '/ui/console/users/me'
 
     def asDict(self):
         data = self.data.copy()
