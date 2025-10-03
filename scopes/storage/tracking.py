@@ -15,7 +15,7 @@ from sqlalchemy import and_
 from scopes.storage.common import registerContainerClass
 
 
-class Track(object):
+class Track:
     
     headFields = ['taskId', 'userName']
     prefix = 'rec'

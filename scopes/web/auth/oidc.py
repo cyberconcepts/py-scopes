@@ -243,7 +243,10 @@ def logout(context, request):
 
 
 def startup():
-    loadOidcProviderData()
+    try:
+        loadOidcProviderData()
+    except requests.exceptions.JSONDecodeError as e:
+        logger.error(f'oidc.loadOidcProviderData: {e} - OIDC provider not available!')
     #app.Publication.registerBeforeTraversal(
     #       lambda req: req.setPrincipal(authentication.authenticate(req))
 
