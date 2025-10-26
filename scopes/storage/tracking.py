@@ -117,9 +117,9 @@ class Container(object):
                 and_(*self.setupWhere(crit))).order_by(self.table.c.trackid)
         else:
             stmt = self.table.select().order_by(self.table.c.trackid)
-        return [self.makeTrack(r) for r in self.session.execute(stmt)]
-        #for r in self.session.execute(stmt):
-        #    yield self.makeTrack(r)
+        #return [self.makeTrack(r) for r in self.session.execute(stmt)]
+        for r in self.session.execute(stmt).all():
+            yield self.makeTrack(r)
 
     def queryLast(self, **crit):
         stmt = (self.table.select().where(and_(*self.setupWhere(crit))).
