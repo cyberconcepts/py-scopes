@@ -179,7 +179,8 @@ class Authenticator(DummyFolder):
         logoutUrl = self.params['op_uris']['end_session_endpoint']
         args = dict(
                 client_id=self.params['client_id'],
-                post_logout_redirect_uri=config.base_url,
+                post_logout_redirect_uri=config.oidc_params.get('post_logout_redirect_uri',
+                                                                config.base_url),
         )
         logoutUrl = '?'.join((logoutUrl, urlencode(args)))
         cname = self.params['cookie_name']
