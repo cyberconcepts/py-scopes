@@ -79,6 +79,10 @@ class Principal:
         return self.data['name']
 
     @property
+    def description(self):
+        return self.data['name']
+
+    @property
     def groups(self):
         return self.data.get('groups', [])
 
